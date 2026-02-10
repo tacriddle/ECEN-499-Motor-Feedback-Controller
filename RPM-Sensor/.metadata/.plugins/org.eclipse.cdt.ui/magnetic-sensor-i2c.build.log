@@ -1,0 +1,16 @@
+11:40:48 **** Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-gcc -o "magnetic-sensor-i2c.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\magnetic-sensor-i2c\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="magnetic-sensor-i2c.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: magnetic-sensor-i2c.elf
+ 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+arm-none-eabi-objdump -h -S magnetic-sensor-i2c.elf  > "magnetic-sensor-i2c.list"
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+Finished building: magnetic-sensor-i2c.list
+ 
+
+11:40:50 Build Finished. 0 errors, 0 warnings. (took 1s.278ms)
+

@@ -1,0 +1,16 @@
+11:40:50 **** Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-gcc -o "magnetic-sensor-spi.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\magnetic-sensor-spi\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="magnetic-sensor-spi.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: magnetic-sensor-spi.elf
+ 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+arm-none-eabi-objdump -h -S magnetic-sensor-spi.elf  > "magnetic-sensor-spi.list"
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+Finished building: magnetic-sensor-spi.list
+ 
+
+11:40:51 Build Finished. 0 errors, 0 warnings. (took 884ms)
+
