@@ -402,3 +402,33 @@ org.eclipse.core.runtime.CoreException: Cannot determine URI for '/optical-senso
 
 !ENTRY org.eclipse.cdt.core 1 0 2026-02-10 11:40:42.174
 !MESSAGE Indexed 'magnetic-sensor-i2c' (22 sources, 84 headers) in 2.62 sec: 5,884 declarations; 38,154 references; 0 unresolved inclusions; 2 syntax errors; 5 unresolved names (0.011%)
+!SESSION 2026-02-11 16:17:28.780 -----------------------------------------------
+eclipse.buildId=Version 1.19.0
+java.version=21.0.3
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2026-02-11 16:17:55.432
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2026-02-11 16:17:55.435
+!MESSAGE Log4j2 initialized with config file C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2026-02-11 16:18:06.534
+!MESSAGE Started RMI Server, listening on port 41337
+!SESSION 2026-02-11 18:59:28.211 -----------------------------------------------
+eclipse.buildId=Version 1.19.0
+java.version=21.0.3
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2026-02-11 18:59:36.232
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2026-02-11 18:59:36.234
+!MESSAGE Log4j2 initialized with config file C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2026-02-11 18:59:46.898
+!MESSAGE Started RMI Server, listening on port 41337

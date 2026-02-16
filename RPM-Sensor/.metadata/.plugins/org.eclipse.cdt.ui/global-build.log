@@ -37,3 +37,552 @@ Finished building: default.size.stdout
  
 Finished building: optical-sensor.list
  
+19:15:49 **** Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+19:15:51 **** Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+19:15:53 **** Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_hal_msp.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_hal_msp.d" -MT"Core/Src/stm32f4xx_hal_msp.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_hal_msp.o"
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_it.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_it.d" -MT"Core/Src/stm32f4xx_it.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_it.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  30124	    476	   2172	  32772	   8004	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+19:19:27 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+19:19:28 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+19:19:30 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c:61:10: error: variably modified 'capture_buffer' at file scope
+   61 | uint32_t capture_buffer[SLOTS_ON_DISK];
+      |          ^~~~~~~~~~~~~~
+make: *** [Core/Src/subdir.mk:34: Core/Src/main.o] Error 1
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+19:20:24 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+19:20:25 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+19:20:26 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  30124	    476	   2172	  32772	   8004	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+19:44:28 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+19:44:30 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+19:44:31 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:120:63: error: 'DMA_BUF_SIZE' undeclared (first use in this function); did you mean 'DMA_SxCR_PSIZE'?
+  120 |   HAL_TIM_IC_Start_DMA(&htim2, TIM_CHANNEL_1, capture_buffer, DMA_BUF_SIZE);
+      |                                                               ^~~~~~~~~~~~
+      |                                                               DMA_SxCR_PSIZE
+../Core/Src/main.c:120:63: note: each undeclared identifier is reported only once for each function it appears in
+../Core/Src/main.c:151:19: error: 'rpm' undeclared (first use in this function)
+  151 |                   rpm = 0;
+      |                   ^~~
+make: *** [Core/Src/subdir.mk:34: Core/Src/main.o] Error 1
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+19:45:34 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+19:45:35 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+19:45:36 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:122:9: warning: unused variable 'timeout_ms' [-Wunused-variable]
+  122 |   float timeout_ms = 60000.0f / (MINIMUM_RPM * SLOTS_ON_DISK);
+      |         ^~~~~~~~~~
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  30772	    468	   2252	  33492	   82d4	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+19:45:59 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+19:46:01 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+19:46:02 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  30764	    468	   2252	  33484	   82cc	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+20:13:04 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+20:13:05 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+20:13:06 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_hal_msp.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_hal_msp.d" -MT"Core/Src/stm32f4xx_hal_msp.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_hal_msp.o"
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_it.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_it.d" -MT"Core/Src/stm32f4xx_it.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_it.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:131:9: warning: unused variable 'timeout_ms' [-Wunused-variable]
+  131 |   float timeout_ms = 60000.0f / (MINIMUM_RPM * SLOTS_ON_DISK);
+      |         ^~~~~~~~~~
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  31380	    472	   2328	  34180	   8584	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+20:13:28 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+20:13:29 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+20:13:31 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:131:9: warning: unused variable 'timeout_ms' [-Wunused-variable]
+  131 |   float timeout_ms = 60000.0f / (MINIMUM_RPM * SLOTS_ON_DISK);
+      |         ^~~~~~~~~~
+../Core/Src/main.c: In function 'HAL_TIM_PeriodElapsedCallback':
+../Core/Src/main.c:472:45: error: 'timeout_ms' undeclared (first use in this function)
+  472 |             if (HAL_GetTick() - last_tick > timeout_ms) {
+      |                                             ^~~~~~~~~~
+../Core/Src/main.c:472:45: note: each undeclared identifier is reported only once for each function it appears in
+make: *** [Core/Src/subdir.mk:34: Core/Src/main.o] Error 1
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+20:14:05 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+20:14:07 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+20:14:09 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:131:9: warning: unused variable 'timeout_ms' [-Wunused-variable]
+  131 |   float timeout_ms = 60000.0f / (MINIMUM_RPM * SLOTS_ON_DISK);
+      |         ^~~~~~~~~~
+../Core/Src/main.c: In function 'HAL_TIM_PeriodElapsedCallback':
+../Core/Src/main.c:472:45: error: 'timeout_ms' undeclared (first use in this function)
+  472 |             if (HAL_GetTick() - last_tick > timeout_ms) {
+      |                                             ^~~~~~~~~~
+../Core/Src/main.c:472:45: note: each undeclared identifier is reported only once for each function it appears in
+make: *** [Core/Src/subdir.mk:34: Core/Src/main.o] Error 1
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+20:14:27 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+20:14:29 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+20:14:30 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:131:9: warning: unused variable 'timeout_ms' [-Wunused-variable]
+  131 |   float timeout_ms = 60000.0f / (MINIMUM_RPM * SLOTS_ON_DISK);
+      |         ^~~~~~~~~~
+../Core/Src/main.c: In function 'HAL_TIM_PeriodElapsedCallback':
+../Core/Src/main.c:471:45: error: 'timeout_ms' undeclared (first use in this function)
+  471 |             if (HAL_GetTick() - last_tick > timeout_ms) {
+      |                                             ^~~~~~~~~~
+../Core/Src/main.c:471:45: note: each undeclared identifier is reported only once for each function it appears in
+make: *** [Core/Src/subdir.mk:34: Core/Src/main.o] Error 1
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+20:15:02 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+20:15:04 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+20:15:05 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:131:15: warning: unused variable 'timeout_ms' [-Wunused-variable]
+  131 |   const float timeout_ms = 60000.0f / (MINIMUM_RPM * SLOTS_ON_DISK);
+      |               ^~~~~~~~~~
+../Core/Src/main.c: In function 'HAL_TIM_PeriodElapsedCallback':
+../Core/Src/main.c:471:45: error: 'timeout_ms' undeclared (first use in this function)
+  471 |             if (HAL_GetTick() - last_tick > timeout_ms) {
+      |                                             ^~~~~~~~~~
+../Core/Src/main.c:471:45: note: each undeclared identifier is reported only once for each function it appears in
+make: *** [Core/Src/subdir.mk:34: Core/Src/main.o] Error 1
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+20:17:00 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+20:17:02 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+20:17:03 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'HAL_TIM_PeriodElapsedCallback':
+../Core/Src/main.c:37:24: error: 'timeout_ms' undeclared (first use in this function)
+   37 | #define timeout_ms     timeout_ms = 60000.0f / (MINIMUM_RPM * SLOTS_ON_DISK)
+      |                        ^~~~~~~~~~
+../Core/Src/main.c:472:45: note: in expansion of macro 'timeout_ms'
+  472 |             if (HAL_GetTick() - last_tick > timeout_ms) {
+      |                                             ^~~~~~~~~~
+../Core/Src/main.c:37:24: note: each undeclared identifier is reported only once for each function it appears in
+   37 | #define timeout_ms     timeout_ms = 60000.0f / (MINIMUM_RPM * SLOTS_ON_DISK)
+      |                        ^~~~~~~~~~
+../Core/Src/main.c:472:45: note: in expansion of macro 'timeout_ms'
+  472 |             if (HAL_GetTick() - last_tick > timeout_ms) {
+      |                                             ^~~~~~~~~~
+make: *** [Core/Src/subdir.mk:34: Core/Src/main.o] Error 1
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+20:17:10 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+20:17:12 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+20:17:14 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  31396	    472	   2328	  34196	   8594	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+20:18:01 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+20:18:03 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+20:18:05 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  31396	    476	   2332	  34204	   859c	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+20:25:08 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+20:25:10 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+20:25:11 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  31436	    476	   2332	  34244	   85c4	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+22:30:30 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-size  optical-sensor.elf 
+   text	   data	    bss	    dec	    hex	filename
+  31436	    476	   2332	  34244	   85c4	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+22:34:58 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  31460	    476	   2332	  34268	   85dc	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+22:43:24 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  31604	    476	   2332	  34412	   866c	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+22:46:46 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  31604	    476	   2324	  34404	   8664	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+22:57:26 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  31604	    476	   2324	  34404	   8664	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+23:03:38 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  31604	    476	   2324	  34404	   8664	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+23:04:34 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  31604	    476	   2332	  34412	   866c	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+23:15:49 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  31604	    476	   2324	  34404	   8664	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+23:22:57 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  31604	    476	   2332	  34412	   866c	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
