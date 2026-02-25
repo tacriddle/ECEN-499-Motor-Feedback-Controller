@@ -1,4 +1,4 @@
-23:22:57 **** Incremental Build of configuration Debug for project optical-sensor ****
+14:51:48 **** Incremental Build of configuration Debug for project optical-sensor ****
 make -j8 all 
 arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
 arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
@@ -7,11 +7,11 @@ Finished building target: optical-sensor.elf
 arm-none-eabi-size  optical-sensor.elf 
 arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
    text	   data	    bss	    dec	    hex	filename
-  31604	    476	   2332	  34412	   866c	optical-sensor.elf
+  32436	    484	   2236	  35156	   8954	optical-sensor.elf
 Finished building: default.size.stdout
  
 Finished building: optical-sensor.list
  
 
-23:23:02 Build Finished. 0 errors, 0 warnings. (took 5s.341ms)
+14:51:54 Build Finished. 0 errors, 0 warnings. (took 5s.441ms)
 

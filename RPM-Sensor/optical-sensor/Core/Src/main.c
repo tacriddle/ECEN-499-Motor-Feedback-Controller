@@ -21,8 +21,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+//begin///////////////////////////////////////////////////////////////////////////////////////////
+//TODO: Debug only — remove before production
 #include <stdio.h>
 #include <string.h>
+//end/////////////////////////////////////////////////////////////////////////////////////////////
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -32,8 +35,27 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define SLOTS_ON_DISK  24
-#define MINIMUM_RPM    5
+
+// DMA_BUF_SIZE: Number of pulse timestamps stored in RAM before the buffer wraps.
+// A larger buffer provides a "safety cushion," giving the CPU more time to
+// process data before the DMA hardware overwrites it.
+#define DMA_BUF_SIZE	4
+
+// SLOTS_ON_DISK: The physical number of holes/slots in your optical encoder disk.
+// This is the primary constant for converting pulse frequency to shaft rotation.
+#define SLOTS_ON_DISK  	18
+
+// MINIMUM_RPM: The speed floor. If the time between pulses exceeds the time
+// equivalent to this RPM, the 'timeout logic' will force the RPM to 0.
+// Prevents the system from displaying a "stale" RPM when the motor stops.
+// The higher the MINIMUM_RPM, the shoerter the timeout time
+#define MINIMUM_RPM    	5
+
+// CALC_WINDOW_SIZE: The number of pulses averaged for a single RPM calculation.
+// Since we process data at the Half-Transfer and Transfer-Complete interrupts,
+// we calculate RPM every (DMA_BUF_SIZE / 2) pulses.
+#define CALC_WINDOW_SIZE (DMA_BUF_SIZE / 2)
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -43,29 +65,46 @@
 
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim2;
-TIM_HandleTypeDef htim3;
 DMA_HandleTypeDef hdma_tim2_ch1;
 
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-uint32_t capture_buffer[SLOTS_ON_DISK];
+uint32_t capture_buffer[DMA_BUF_SIZE];
 
-uint32_t last_dma_index = 0;
+// Indices for the end of the first half and total buffer
+// These define our "capture windows" for the DMA interrupts
+uint8_t CALC_WINDOW_MAX_IDX = CALC_WINDOW_SIZE - 1;
+uint8_t DMA_BUF_MAX_IDX = DMA_BUF_SIZE - 1;
 
-uint32_t IC_Val1 = 0;
-uint32_t IC_Val2 = 0;
-uint32_t Difference = 0;
-uint8_t Is_First_Captured = 0;  // 0 = waiting for first edge, 1 = waiting for second
+// Conversion Constant Calculation:
+// We measure ticks between pulses. To get RPM:
+// RPM = (60,000,000 us/min) / (Time for 1 revolution in us)
+// Time for 1 rev = (Avg time between pulses) * SLOTS_ON_DISK
+float conversion_factor = (60000000.0f * CALC_WINDOW_SIZE) / SLOTS_ON_DISK;
 
-float current_rpm = 0;
+uint32_t last_pulse_timestamp = 0; 	// Stores the final timestamp of the previous DMA batch
+float current_rpm = 0; 				// Resultant filtered RPM
+volatile uint32_t period_ticks = 0; // Raw timer ticks over the current window
+volatile uint8_t new_rpm_data = 0;  // Semaphore flag to signal main loop processing
 
-float alpha = 0.2f;				// used for rolling avergae for rpm (20% weight to new data, 80% to history)
+// Sliding window for spike rejection
+float median_buffer[3] = {0, 0, 0};
+uint8_t median_idx = 0;
 
-uint32_t last_tick = 0;         // For timeout logic
+// Smoothing factor (Lower = smoother but slower response. 30% weight to new data, 70% to history)
+float alpha = 0.3f;
+
+// Calculate max allowable time between pulses before assuming motor has stopped
 float timeout_ms = 60000.0f / (MINIMUM_RPM * SLOTS_ON_DISK);
+uint32_t last_tick = 0; // For timeout logic
 
+
+//begin///////////////////////////////////////////////////////////////////////////////////////////
+//TODO: Debug only — remove before production
 static uint32_t last_print = 0;
+//end/////////////////////////////////////////////////////////////////////////////////////////////
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -74,18 +113,49 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
-//void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim);
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
+float get_median_of_3(float a, float b, float c) {
+    if ((a <= b && b <= c) || (c <= b && b <= a)) return b;
+    if ((b <= a && a <= c) || (c <= a && a <= b)) return a;
+    return c;
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+//begin///////////////////////////////////////////////////////////////////////////////////////////
+//TODO: Debug only — remove before production
 int __io_putchar(int ch) {
     HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
     return ch;
 }
+//end///////////////////////////////////////////////////////////////////////////////////////////
+
+//begin///////////////////////////////////////////////////////////////////////////////////////////
+//TODO: Debug only — remove before production
+//CPU cylce tracking
+void DWT_Init(void) {
+    // 1. Enable the trace peripheral (required for DWT)
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+
+    // 3. Reset the cycle counter
+    DWT->CYCCNT = 0;
+
+    // 4. Start the cycle counter
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+}
+uint32_t start, end, duration;
+volatile float acc_isr_half = 0;    // RPM Sensor Interrupt
+volatile float acc_isr_full = 0;  // Motor PWM/Control Interrupt
+float acc_main_logic = 0;          // Your if(new_rpm_data) block
+float load_half_pct = 0;
+float load_full_pct = 0;
+float load_main_pct = 0;
+float last_report_tick = 0;
+float acc_idle_cycles = 0;
+float load_idle_pct = 0;
+//end///////////////////////////////////////////////////////////////////////////////////////////
+
 /* USER CODE END 0 */
 
 /**
@@ -120,18 +190,24 @@ int main(void)
   MX_DMA_Init();
   MX_USART2_UART_Init();
   MX_TIM2_Init();
-  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-//  HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_1);
-
-  HAL_TIM_Base_Start_IT(&htim3);
 
   // This tells the DMA: "Every time TIM2 captures a value, put it in capture_buffer."
-  HAL_TIM_IC_Start_DMA(&htim2, TIM_CHANNEL_1, capture_buffer, SLOTS_ON_DISK);
+  HAL_TIM_IC_Start_DMA(&htim2, TIM_CHANNEL_1, capture_buffer, DMA_BUF_SIZE);
 
+  //begin///////////////////////////////////////////////////////////////////////////////////////////
+  //TODO: Debug only — remove before production
+  DWT_Init();
+  
   uint8_t print = 1;
   uint8_t last_button = 1;
   HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+  
+  printf("----------------------------------------------------------------------\r\n");
+  printf("----------------------------------------------------------------------\r\n");
+  printf("----------------------------------------------------------------------\r\n");
+  //end/////////////////////////////////////////////////////////////////////////////////////////////
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -142,31 +218,97 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
+
+	  // Process new RPM measurement if a DMA interrupt has occurred
+	  if (new_rpm_data) {
+      //begin///////////////////////////////////////////////////////////////////////////////////////////
+      //TODO: Debug only — remove before production
+		  start = DWT->CYCCNT;
+      //end///////////////////////////////////////////////////////////////////////////////////////////
+
+		  new_rpm_data = 0;
+
+		  // Step 1: Calculate raw RPM from timer ticks
+		  float rpm_raw = conversion_factor / (float)period_ticks;
+
+		  // Step 2: Median Filter - Rejects single-point noise/glitches
+		  median_buffer[median_idx] = rpm_raw;
+		  median_idx++;
+		  if (median_idx >= 3) {
+			  median_idx = 0;
+		  }
+		  float rpm_filtered = get_median_of_3(median_buffer[0], median_buffer[1], median_buffer[2]);
+
+
+		  // Step 3: Complementary Alpha Filter - Smooths out quantization jitter
+		  current_rpm = (alpha * rpm_filtered) + ((1.0f - alpha) * current_rpm);
+
+		  // Update timeout timestamp
+		  last_tick = HAL_GetTick();
+
+      //begin///////////////////////////////////////////////////////////////////////////////////////////
+      //TODO: Debug only — remove before production
+		  acc_main_logic += (DWT->CYCCNT - start);
+      //end/////////////////////////////////////////////////////////////////////////////////////////////
+	  }
+
+
+
+    //begin///////////////////////////////////////////////////////////////////////////////////////////
+    //TODO: Debug only — remove before production
+	  // --- The Auditor: Calculate results every 1 second ---
+	  if (print && (HAL_GetTick() - last_report_tick >= 1000)) {
+      // Calculate percentages (Assuming 180MHz)
+		  load_half_pct = ((float)acc_isr_half * 100) / 180000000;
+		  load_full_pct = ((float)acc_isr_full * 100) / 180000000;
+		  load_main_pct = ((float)acc_main_logic * 100) / 180000000;
+
+		  printf("--- CPU LOAD REPORT ---\r\n");
+		  printf("Half ISR:  %.4f%%\r\n", load_half_pct);
+		  printf("Full ISR:  %.4f%%\r\n", load_full_pct);
+		  printf("Main Math: %.4f%%\r\n", load_main_pct);
+		  printf("Total:     %.4f%%\r\n\n", load_half_pct + load_full_pct + load_main_pct);
+      
+		  // Reset all accumulators
+		  acc_isr_half = 0;
+		  acc_isr_full = 0;
+		  acc_main_logic = 0;
+		  acc_idle_cycles = 0;
+		  last_report_tick = HAL_GetTick();
+	  }
+    //end/////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+	  // timeout logic to detect when RPM = 0 (If no pulses seen for too long, set RPM to zero)
+	  if (HAL_GetTick() - last_tick > (uint32_t)timeout_ms) {
+		  current_rpm = 0;
+		  median_buffer[0] = median_buffer[1] = median_buffer[2] = 0;
+	  }
+
+
+    //begin///////////////////////////////////////////////////////////////////////////////////////////
+    //TODO: Debug only — remove before production
 	  // start and stop printing to serial on button1 press
 	  uint8_t current_button = HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin);
 	  if (last_button == GPIO_PIN_SET && current_button == GPIO_PIN_RESET)
 	  {
-	      print = !print;
-	      HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+      print = !print;
+      HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 	  }
 	  last_button = current_button;
-
-
-
-//	  // If we haven't seen a pulse in a certain amount of time, the drill has stopped
-//	  if (HAL_GetTick() - last_tick > timeout_ms) {
-//		  current_rpm = 0;
-//	  }
-
-
-
+    
 	  // Print RPM to Serial every 100ms
-	  if ((HAL_GetTick() - last_print > 100) && print)
+	  if (print && (HAL_GetTick() - last_print > 100))
 	  {
-		printf("%.0f\r\n", current_rpm);
-		last_print = HAL_GetTick();
+      printf("%.0f\r\n", current_rpm);
+		  last_print = HAL_GetTick();
 	  }
+    //end/////////////////////////////////////////////////////////////////////////////////////////////
+
+
   }
+
   /* USER CODE END 3 */
 }
 
@@ -282,51 +424,6 @@ static void MX_TIM2_Init(void)
 }
 
 /**
-  * @brief TIM3 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM3_Init(void)
-{
-
-  /* USER CODE BEGIN TIM3_Init 0 */
-
-  /* USER CODE END TIM3_Init 0 */
-
-  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
-
-  /* USER CODE BEGIN TIM3_Init 1 */
-
-  /* USER CODE END TIM3_Init 1 */
-  htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 9000-1;
-  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 100-1;
-  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM3_Init 2 */
-
-  /* USER CODE END TIM3_Init 2 */
-
-}
-
-/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -415,78 +512,56 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-//------------------------------------------------------------------------------
-//old method without DMA
-//------------------------------------------------------------------------------
-//void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
-//{
-//    if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
-//    {
-//        if (Is_First_Captured == 0) // First edge detected
-//        {
-//            IC_Val1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
-//            Is_First_Captured = 1;
-//        }
-//        else // Second edge detected
-//        {
-//            IC_Val2 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
-//
-//            if (IC_Val2 > IC_Val1) {
-//                Difference = IC_Val2 - IC_Val1;
-//            } else {
-//                Difference = (0xFFFFFFFF - IC_Val1) + IC_Val2;
-//            }
-//
-//            // Calculate RPM: (1,000,000us / Difference) = Pulses per second
-//            // RPM = (PPS * 60) / Slots
-//            float rpm_raw = (60000000.0f / (float)Difference) / (float)SLOTS_ON_DISK;
-//            // Apply Rolling Average (Exponential Moving Average)
-//            rpm = (rpm_raw * alpha) + (rpm * (1.0f - alpha));
-//
-//            Is_First_Captured = 0;
-//            last_tick = HAL_GetTick(); // Reset timeout timer
-//        }
-//    }
-//}
 
+// Triggered when DMA fills the FIRST half of the buffer (Indices 0 to CALC_WINDOW_MAX_IDX)
+// CALC_WINDOW_MAX_IDX = (DMA_BUF_SIZE / 2) - 1
+void HAL_TIM_IC_CaptureHalfCpltCallback(TIM_HandleTypeDef *htim)
+{
+  //begin///////////////////////////////////////////////////////////////////////////////////////////
+  //TODO: Debug only — remove before production
+	start = DWT->CYCCNT;
+  //end/////////////////////////////////////////////////////////////////////////////////////////////
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-    if (htim->Instance == TIM3) {
-        // 1. Get current DMA write position
-        uint32_t current_dma_index = SLOTS_ON_DISK - __HAL_DMA_GET_COUNTER(&hdma_tim2_ch1);
+  // Calculate time elapsed from the end of the previous DMA batch to the end of this half.
+  // This ensures we don't lose the "gap" between interrupts.
+  period_ticks = capture_buffer[CALC_WINDOW_MAX_IDX] - last_pulse_timestamp;
 
-        if (current_dma_index != last_dma_index) {
+  // Save last timestamp of the first half to be used for calculation of second half
+  last_pulse_timestamp = capture_buffer[CALC_WINDOW_MAX_IDX];
 
-            // 2. Calculate "Full Rotation" time using circular logic
-            // The value at current_dma_index is the oldest (SLOTS_ON_DISK pulses ago)
-            // The value at (current_dma_index - 1) is the newest
-            uint32_t newest_val = capture_buffer[(current_dma_index == 0) ? (SLOTS_ON_DISK - 1) : (current_dma_index - 1)];
-            uint32_t oldest_val = capture_buffer[current_dma_index];
+  new_rpm_data = 1;
 
-            uint32_t total_time;
-            if (newest_val > oldest_val) {
-                total_time = newest_val - oldest_val;
-            } else {
-                total_time = (0xFFFFFFFF - oldest_val) + newest_val;
-            }
-
-            if (total_time > 0) {
-                // Since total_time is the time for 1 full rotation:
-                // RPM = (60,000,000 us / total_time)
-                float rpm_raw = 60000000.0f / (float)total_time;
-
-                current_rpm = (rpm_raw * alpha) + (current_rpm * (1.0f - alpha));
-            }
-
-            last_dma_index = current_dma_index;
-            last_tick = HAL_GetTick();
-        } else {
-            if (HAL_GetTick() - last_tick > (uint32_t)timeout_ms) {
-                current_rpm = 0;
-            }
-        }
-    }
+  //begin///////////////////////////////////////////////////////////////////////////////////////////
+  //TODO: Debug only — remove before production
+  acc_isr_half += (DWT->CYCCNT - start);
+  //end////////////////////////////////////////////////////////////////////////////////////////////
 }
+
+
+// Triggered when DMA fills the SECOND half of the buffer (Indices CALC_WINDOW_SIZE to DMA_BUF_MAX_IDX)
+// CALC_WINDOW_SIZE = DMA_BUF_SIZE / 2
+// DMA_BUF_MAX_IDX = DMA_BUF_SIZE - 1
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+  //begin///////////////////////////////////////////////////////////////////////////////////////////
+  //TODO: Debug only — remove before production
+	start = DWT->CYCCNT;
+  //end////////////////////////////////////////////////////////////////////////////////////////////
+
+	// Calculate time elapsed from the end of the first half to the end of the buffer
+  period_ticks = capture_buffer[DMA_BUF_MAX_IDX] - last_pulse_timestamp;
+
+  // Save last timestamp of second half to be used for calculation of first half of next buffer
+  last_pulse_timestamp = capture_buffer[DMA_BUF_MAX_IDX];
+  new_rpm_data = 1;
+
+  //begin///////////////////////////////////////////////////////////////////////////////////////////
+  //TODO: Debug only — remove before production
+  acc_isr_full += (DWT->CYCCNT - start);
+  //end////////////////////////////////////////////////////////////////////////////////////////////
+}
+
+
 /* USER CODE END 4 */
 
 /**

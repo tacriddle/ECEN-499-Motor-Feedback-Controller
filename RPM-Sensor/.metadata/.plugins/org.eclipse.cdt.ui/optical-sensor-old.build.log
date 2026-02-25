@@ -1,0 +1,10 @@
+18:05:27 **** Incremental Build of configuration Debug for project optical-sensor-old ****
+make -j8 all 
+arm-none-eabi-size  optical-sensor-old.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28436	    476	   2076	  30988	   790c	optical-sensor-old.elf
+Finished building: default.size.stdout
+ 
+
+18:05:29 Build Finished. 0 errors, 0 warnings. (took 1s.412ms)
+
