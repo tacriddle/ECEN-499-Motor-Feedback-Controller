@@ -67,7 +67,9 @@
 TIM_HandleTypeDef htim2;
 DMA_HandleTypeDef hdma_tim2_ch1;
 
+UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_usart1_tx;
 
 /* USER CODE BEGIN PV */
 uint32_t capture_buffer[DMA_BUF_SIZE];
@@ -84,9 +86,11 @@ uint8_t DMA_BUF_MAX_IDX = DMA_BUF_SIZE - 1;
 float conversion_factor = (60000000.0f * CALC_WINDOW_SIZE) / SLOTS_ON_DISK;
 
 uint32_t last_pulse_timestamp = 0; 	// Stores the final timestamp of the previous DMA batch
-float current_rpm = 0; 				// Resultant filtered RPM
 volatile uint32_t period_ticks = 0; // Raw timer ticks over the current window
 volatile uint8_t new_rpm_data = 0;  // Semaphore flag to signal main loop processing
+float current_rpm = 0; 				// Resultant filtered RPM
+
+float current_pwm = 0;
 
 // Sliding window for spike rejection
 float median_buffer[3] = {0, 0, 0};
@@ -99,6 +103,8 @@ float alpha = 0.3f;
 float timeout_ms = 60000.0f / (MINIMUM_RPM * SLOTS_ON_DISK);
 uint32_t last_tick = 0; // For timeout logic
 
+char esp32_buffer[10]; 				// buffer for rpm string to be sent to ESP32
+uint32_t last_ESP32_transmit = 0;	// used to transmit to ESP32 after every 100ms
 
 //begin///////////////////////////////////////////////////////////////////////////////////////////
 //TODO: Debug only — remove before production
@@ -113,6 +119,7 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 float get_median_of_3(float a, float b, float c) {
     if ((a <= b && b <= c) || (c <= b && b <= a)) return b;
@@ -190,6 +197,7 @@ int main(void)
   MX_DMA_Init();
   MX_USART2_UART_Init();
   MX_TIM2_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
   // This tells the DMA: "Every time TIM2 captures a value, put it in capture_buffer."
@@ -253,29 +261,45 @@ int main(void)
 	  }
 
 
+	  // transmit current RPM and PWM to ESP32 for graphing
+	  if (HAL_GetTick() - last_ESP32_transmit >= 100) {
+		  // Only send if the previous DMA transfer is finished
+		  if (huart1.gState == HAL_UART_STATE_READY) {
+
+			  // Example: current_rpm = 1500, current_pwm = 75 -> "1500,75\n"
+			  int len = sprintf(esp32_buffer, "%d,%d\n", (int)current_rpm, (int)current_pwm);
+
+			  // Transmit to ESP32 via UART1
+			  HAL_UART_Transmit_DMA(&huart1, (uint8_t*)esp32_buffer, len);
+
+			  last_ESP32_transmit = HAL_GetTick();
+		  }
+	  }
+
+
 
     //begin///////////////////////////////////////////////////////////////////////////////////////////
     //TODO: Debug only — remove before production
-	  // --- The Auditor: Calculate results every 1 second ---
-	  if (print && (HAL_GetTick() - last_report_tick >= 1000)) {
-      // Calculate percentages (Assuming 180MHz)
-		  load_half_pct = ((float)acc_isr_half * 100) / 180000000;
-		  load_full_pct = ((float)acc_isr_full * 100) / 180000000;
-		  load_main_pct = ((float)acc_main_logic * 100) / 180000000;
-
-		  printf("--- CPU LOAD REPORT ---\r\n");
-		  printf("Half ISR:  %.4f%%\r\n", load_half_pct);
-		  printf("Full ISR:  %.4f%%\r\n", load_full_pct);
-		  printf("Main Math: %.4f%%\r\n", load_main_pct);
-		  printf("Total:     %.4f%%\r\n\n", load_half_pct + load_full_pct + load_main_pct);
-      
-		  // Reset all accumulators
-		  acc_isr_half = 0;
-		  acc_isr_full = 0;
-		  acc_main_logic = 0;
-		  acc_idle_cycles = 0;
-		  last_report_tick = HAL_GetTick();
-	  }
+//	  // --- The Auditor: Calculate results every 1 second ---
+//	  if (print && (HAL_GetTick() - last_report_tick >= 1000)) {
+//      // Calculate percentages (Assuming 180MHz)
+//		  load_half_pct = ((float)acc_isr_half * 100) / 180000000;
+//		  load_full_pct = ((float)acc_isr_full * 100) / 180000000;
+//		  load_main_pct = ((float)acc_main_logic * 100) / 180000000;
+//
+//		  printf("--- CPU LOAD REPORT ---\r\n");
+//		  printf("Half ISR:  %.4f%%\r\n", load_half_pct);
+//		  printf("Full ISR:  %.4f%%\r\n", load_full_pct);
+//		  printf("Main Math: %.4f%%\r\n", load_main_pct);
+//		  printf("Total:     %.4f%%\r\n\n", load_half_pct + load_full_pct + load_main_pct);
+//
+//		  // Reset all accumulators
+//		  acc_isr_half = 0;
+//		  acc_isr_full = 0;
+//		  acc_main_logic = 0;
+//		  acc_idle_cycles = 0;
+//		  last_report_tick = HAL_GetTick();
+//	  }
     //end/////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -424,6 +448,39 @@ static void MX_TIM2_Init(void)
 }
 
 /**
+  * @brief USART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART1_Init 0 */
+
+  /* USER CODE END USART1_Init 0 */
+
+  /* USER CODE BEGIN USART1_Init 1 */
+
+  /* USER CODE END USART1_Init 1 */
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 115200;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART1_Init 2 */
+
+  /* USER CODE END USART1_Init 2 */
+
+}
+
+/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -464,11 +521,15 @@ static void MX_DMA_Init(void)
 
   /* DMA controller clock enable */
   __HAL_RCC_DMA1_CLK_ENABLE();
+  __HAL_RCC_DMA2_CLK_ENABLE();
 
   /* DMA interrupt init */
   /* DMA1_Stream5_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
+  /* DMA2_Stream7_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream7_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream7_IRQn);
 
 }
 
