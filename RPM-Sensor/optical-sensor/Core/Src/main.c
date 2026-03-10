@@ -21,10 +21,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <string.h>
+#include <stdlib.h>
 //begin///////////////////////////////////////////////////////////////////////////////////////////
 //TODO: Debug only — remove before production
 #include <stdio.h>
-#include <string.h>
 //end/////////////////////////////////////////////////////////////////////////////////////////////
 /* USER CODE END Includes */
 
@@ -70,6 +71,7 @@ DMA_HandleTypeDef hdma_tim2_ch1;
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart1_tx;
+DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
 uint32_t capture_buffer[DMA_BUF_SIZE];
@@ -103,8 +105,13 @@ float alpha = 0.3f;
 float timeout_ms = 60000.0f / (MINIMUM_RPM * SLOTS_ON_DISK);
 uint32_t last_tick = 0; // For timeout logic
 
-char esp32_buffer[10]; 				// buffer for rpm string to be sent to ESP32
+char esp32_tx_buffer[10]; 				// buffer for rpm string to be sent to ESP32
 uint32_t last_ESP32_transmit = 0;	// used to transmit to ESP32 after every 100ms
+
+char esp32_rx_buffer[10];   // To hold the incoming string (e.g., "3000\n") from ESP32
+uint8_t esp32_rx_index = 0; // Current position in buffer
+uint8_t esp32_rx_char;      // Temp storage for 1 byte
+int target_rpm = 0;     	// The final number you'll use for PWM logic
 
 //begin///////////////////////////////////////////////////////////////////////////////////////////
 //TODO: Debug only — remove before production
@@ -203,6 +210,9 @@ int main(void)
   // This tells the DMA: "Every time TIM2 captures a value, put it in capture_buffer."
   HAL_TIM_IC_Start_DMA(&htim2, TIM_CHANNEL_1, capture_buffer, DMA_BUF_SIZE);
 
+  // ESP32 Tx interrupt
+  HAL_UART_Receive_IT(&huart1, &esp32_rx_char, 1);
+
   //begin///////////////////////////////////////////////////////////////////////////////////////////
   //TODO: Debug only — remove before production
   DWT_Init();
@@ -266,11 +276,21 @@ int main(void)
 		  // Only send if the previous DMA transfer is finished
 		  if (huart1.gState == HAL_UART_STATE_READY) {
 
-			  // Example: current_rpm = 1500, current_pwm = 75 -> "1500,75\n"
-			  int len = sprintf(esp32_buffer, "%d,%d\n", (int)current_rpm, (int)current_pwm);
+//			  // Example: current_rpm = 1500, current_pwm = 75 -> "1500,75\n"
+//			  int len = sprintf(esp32_tx_buffer, "%d,%d\n", (int)current_rpm, (int)current_pwm);
+//
+//			  // Transmit to ESP32 via UART1
+//			  HAL_UART_Transmit_DMA(&huart1, (uint8_t*)esp32_tx_buffer, len);
 
-			  // Transmit to ESP32 via UART1
-			  HAL_UART_Transmit_DMA(&huart1, (uint8_t*)esp32_buffer, len);
+		    //begin///////////////////////////////////////////////////////////////////////////////////////////
+		    //TODO: Simulation — remove before production
+//			  current_rpm = 1000;
+			  current_rpm = target_rpm;
+			  current_pwm = 25;
+			  int len = sprintf(esp32_tx_buffer, "%d,%d\n", (int)current_rpm, (int)current_pwm);
+			  HAL_UART_Transmit_DMA(&huart1, (uint8_t*)esp32_tx_buffer, len);
+//			  HAL_UART_Transmit(&huart2, (uint8_t*)esp32_tx_buffer, len, 10);
+			//end/////////////////////////////////////////////////////////////////////////////////////////////
 
 			  last_ESP32_transmit = HAL_GetTick();
 		  }
@@ -325,7 +345,7 @@ int main(void)
 	  // Print RPM to Serial every 100ms
 	  if (print && (HAL_GetTick() - last_print > 100))
 	  {
-      printf("%.0f\r\n", current_rpm);
+//      printf("%.0f\r\n", current_rpm);
 		  last_print = HAL_GetTick();
 	  }
     //end/////////////////////////////////////////////////////////////////////////////////////////////
@@ -527,6 +547,9 @@ static void MX_DMA_Init(void)
   /* DMA1_Stream5_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
+  /* DMA1_Stream6_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
   /* DMA2_Stream7_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream7_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream7_IRQn);
@@ -622,6 +645,37 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
   //end////////////////////////////////////////////////////////////////////////////////////////////
 }
 
+
+// Triggered on UART target rpm input from ESP32
+// Using example of "1500\n" sent from ESP32:
+// 	 Each digit (1, 5, 0, 0) triggers the RxCpltCallback.
+//   When the \n arrives, it runs atoi(), and target_rpm instantly becomes the integer 1500
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+    if (huart->Instance == USART1) { // Ensure it's the correct UART
+
+        // If we hit a newline or carriage return, the number is complete
+        if (esp32_rx_char == '\n' || esp32_rx_char == '\r') {
+        	esp32_rx_buffer[esp32_rx_index] = '\0'; // Null-terminate the string
+
+            if (esp32_rx_index > 0) {
+                target_rpm = atoi(esp32_rx_buffer); // CONVERT STRING TO INT
+
+    		    //begin///////////////////////////////////////////////////////////////////////////////////////////
+    		    //TODO: Debug only — remove before production
+                printf("TARGET RPM: %d\r\n", target_rpm);
+    			//end/////////////////////////////////////////////////////////////////////////////////////////////
+            }
+
+            esp32_rx_index = 0; // Reset for next command
+        }
+        else if (esp32_rx_index < sizeof(esp32_rx_buffer) - 1) {
+        	esp32_rx_buffer[esp32_rx_index++] = esp32_rx_char; // Add char to buffer
+        }
+
+        // Restart interrupt to listen for the next byte
+        HAL_UART_Receive_IT(&huart1, &esp32_rx_char, 1);
+    }
+}
 
 /* USER CODE END 4 */
 

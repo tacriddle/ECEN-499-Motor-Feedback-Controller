@@ -1,4 +1,4 @@
-13:34:50 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+16:57:15 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
 make -j8 all 
 arm-none-eabi-size  magnetic-sensor-spi.elf 
    text	   data	    bss	    dec	    hex	filename
@@ -6,5 +6,5 @@ arm-none-eabi-size  magnetic-sensor-spi.elf
 Finished building: default.size.stdout
  
 
-13:34:52 Build Finished. 0 errors, 0 warnings. (took 1s.310ms)
+16:57:16 Build Finished. 0 errors, 0 warnings. (took 626ms)
 
