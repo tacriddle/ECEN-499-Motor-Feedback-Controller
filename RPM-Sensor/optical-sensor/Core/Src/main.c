@@ -285,8 +285,13 @@ int main(void)
 		    //begin///////////////////////////////////////////////////////////////////////////////////////////
 		    //TODO: Simulation — remove before production
 //			  current_rpm = 1000;
-			  current_rpm = target_rpm;
 			  current_pwm = 25;
+
+			  int simulated_noise = (rand() % 401) - 200;
+			  current_rpm = target_rpm + simulated_noise;
+			  if (current_rpm < 0) current_rpm = 0;
+			  if (current_rpm > 3500) current_rpm = 3500;
+
 			  int len = sprintf(esp32_tx_buffer, "%d,%d\n", (int)current_rpm, (int)current_pwm);
 			  HAL_UART_Transmit_DMA(&huart1, (uint8_t*)esp32_tx_buffer, len);
 //			  HAL_UART_Transmit(&huart2, (uint8_t*)esp32_tx_buffer, len, 10);
@@ -651,31 +656,39 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 // 	 Each digit (1, 5, 0, 0) triggers the RxCpltCallback.
 //   When the \n arrives, it runs atoi(), and target_rpm instantly becomes the integer 1500
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-    if (huart->Instance == USART1) { // Ensure it's the correct UART
+    if (huart->Instance == USART1) { // Ensure it matches your ESP32 connection
 
-        // If we hit a newline or carriage return, the number is complete
+        // 1. Check for end-of-line characters
         if (esp32_rx_char == '\n' || esp32_rx_char == '\r') {
-        	esp32_rx_buffer[esp32_rx_index] = '\0'; // Null-terminate the string
 
+            // Only process if we actually collected characters (prevents \r\n double-trigger)
             if (esp32_rx_index > 0) {
-                target_rpm = atoi(esp32_rx_buffer); // CONVERT STRING TO INT
+                esp32_rx_buffer[esp32_rx_index] = '\0'; // Null-terminate
 
-    		    //begin///////////////////////////////////////////////////////////////////////////////////////////
-    		    //TODO: Debug only — remove before production
-                printf("TARGET RPM: %d\r\n", target_rpm);
-    			//end/////////////////////////////////////////////////////////////////////////////////////////////
+                target_rpm = atoi(esp32_rx_buffer);     // Convert to integer
+
+				//begin///////////////////////////////////////////////////////////////////////////////////////////
+				//TODO: Debug only — remove before production
+				printf("TARGET RPM: %d\r\n", target_rpm);
+				//end/////////////////////////////////////////////////////////////////////////////////////////////
+
+                esp32_rx_index = 0; // Reset index ONLY after a successful parse
             }
-
-            esp32_rx_index = 0; // Reset for next command
         }
+        // 2. Add numeric characters to the buffer
         else if (esp32_rx_index < sizeof(esp32_rx_buffer) - 1) {
-        	esp32_rx_buffer[esp32_rx_index++] = esp32_rx_char; // Add char to buffer
+
+            // Only accept numbers 0-9 to filter out potential serial noise/trash
+            if (esp32_rx_char >= '0' && esp32_rx_char <= '9') {
+                esp32_rx_buffer[esp32_rx_index++] = esp32_rx_char;
+            }
         }
 
-        // Restart interrupt to listen for the next byte
+        // 3. Re-prime the interrupt to catch the next byte
         HAL_UART_Receive_IT(&huart1, &esp32_rx_char, 1);
     }
 }
+
 
 /* USER CODE END 4 */
 
