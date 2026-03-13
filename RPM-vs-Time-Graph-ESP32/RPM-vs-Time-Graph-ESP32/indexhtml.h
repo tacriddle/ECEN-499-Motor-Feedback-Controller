@@ -80,17 +80,54 @@ const char index_html[] PROGMEM = R"rawliteral(
 
 
 
-    <!--
-    //start///////////////////////////////////////////////////////////////////////////////////
-    //TODO - flappy bird
-    -->
-    <div style="margin-top: 80px; margin-bottom: 100px; text-align: center; border-top: 2px dashed #ccc; padding-top: 20px;">
-        <h1>Need a Break?</h1>
-        <iframe src="/game" width="100%" height="650" style="border:none; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); max-width: 550px;"></iframe>
+<!--
+//start///////////////////////////////////////////////////////////////////////////////////
+//TODO - flappy bird
+-->
+    <div style="margin-top: 40px; text-align: center; border-top: 2px dashed #ccc; padding-top: 20px; padding-bottom: 40px;">
+        <button id="gameToggle" onclick="toggleGame()" style="padding: 12px 25px; background: #7f8c8d; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; transition: 0.3s;">
+          NEED A BREAK?
+        </button>
+
+        <div id="gameContainer" style="display: none; margin-top: 60px; transition: all 0.5s ease-in-out;">
+            <h2 style="color: #2c3e50;">FLAPPY BRICK</h2>
+          <iframe id="gameFrame" src="" width="100%" height="750" 
+              style="border:none; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+              width: 95%; max-width: 500px; margin: auto; display: block;"> 
+          </iframe>
+        </div>
     </div>
-    <!--
-    //end/////////////////////////////////////////////////////////////////////////////////////
-    -->
+
+    <script>
+    function toggleGame() {
+        var container = document.getElementById('gameContainer');
+        var frame = document.getElementById('gameFrame');
+        var btn = document.getElementById('gameToggle');
+
+        if (container.style.display === "none") {
+            // Show the game
+            container.style.display = "block";
+            btn.innerHTML = "CLOSE GAME";
+            btn.style.background = "#e74c3c";
+            
+            // Only load the iframe content when the button is clicked to save ESP32 resources
+            if (frame.src === "" || frame.src === window.location.href) {
+                frame.src = "/game";
+            }
+        } else {
+            // Hide the game
+            container.style.display = "none";
+            btn.innerHTML = "NEED A BREAK?";
+            btn.style.background = "#7f8c8d";
+            
+            // Optional: Stop the game music/logic by clearing the src
+            frame.src = ""; 
+        }
+    }
+    </script>
+<!--
+//end/////////////////////////////////////////////////////////////////////////////////////
+-->
 
 
 
