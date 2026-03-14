@@ -117,12 +117,12 @@ const char flappy_html[] PROGMEM = R"rawliteral(
                 osc.type = 'square';
                 osc.frequency.setValueAtTime(200, audioCtx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(500, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.1);
             } else {
                 osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.4);
             }
         }
@@ -165,7 +165,7 @@ const char flappy_html[] PROGMEM = R"rawliteral(
                     }
                     pipes.forEach((p, i) => {
                         p.x -= 4;
-                        ctx.fillStyle = "#2ecc71";
+                        ctx.fillStyle = "yellow";
                         ctx.fillRect(p.x, 0, 60, p.top);
                         ctx.fillRect(p.x, p.bottom, 60, canvas.height);
                         if (80 + 35 > p.x && 80 < p.x + 60 && (bird.y < p.top || bird.y + 35 > p.bottom)) {

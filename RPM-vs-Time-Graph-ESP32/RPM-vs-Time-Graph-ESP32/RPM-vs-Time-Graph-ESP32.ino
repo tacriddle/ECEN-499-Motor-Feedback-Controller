@@ -9,11 +9,14 @@
 
 
 //start///////////////////////////////////////////////////////////////////////////////////
-//TODO - flappy bird
+//TODO - arcade
 #include "flappy.h"
 #include <Preferences.h>
 Preferences prefs;
 int highScore = 0;
+
+#include "pacman.h"
+int pacHighScore = 0; 
 //end/////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -120,7 +123,9 @@ void setup() {
 
 
   //start///////////////////////////////////////////////////////////////////////////////////
-  //TODO - flappy bird
+  //TODO - arcade
+
+  // flappy brick
   server.on("/game", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/html", flappy_html);
   });
@@ -144,6 +149,35 @@ void setup() {
               highScore = newScore;
           }
           prefs.end();
+      }
+      request->send(200, "text/plain", "OK");
+  });
+
+
+  // pacman
+  server.on("/pacman", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/html", pacman_html);
+  });
+
+  // 1. Get Pac-Man High Score (Persistent)
+  server.on("/getPacScore", HTTP_GET, [](AsyncWebServerRequest *request){
+      prefs.begin("drill-game", true); // Open in read-only
+      int currentPacHigh = prefs.getInt("pachigh", 0);
+      prefs.end();
+      request->send(200, "text/plain", String(currentPacHigh));
+  });
+
+  // 2. Set Pac-Man High Score (Persistent)
+  server.on("/setPacScore", HTTP_GET, [](AsyncWebServerRequest *request){
+      if (request->hasParam("score")) {
+          int newScore = request->getParam("score")->value().toInt();
+          
+          prefs.begin("drill-game", false); // Open in read-write
+          prefs.putInt("pachigh", newScore);
+          prefs.end();
+          
+          Serial.print("New Pac-Man High Score Saved: ");
+          Serial.println(newScore);
       }
       request->send(200, "text/plain", "OK");
   });

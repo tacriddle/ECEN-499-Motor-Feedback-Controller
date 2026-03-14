@@ -65,6 +65,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 DMA_HandleTypeDef hdma_tim2_ch1;
 
@@ -127,12 +128,17 @@ static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_TIM1_Init(void);
 /* USER CODE BEGIN PFP */
 float get_median_of_3(float a, float b, float c) {
     if ((a <= b && b <= c) || (c <= b && b <= a)) return b;
     if ((b <= a && a <= c) || (c <= a && a <= b)) return a;
     return c;
 }
+/////////////////////////////////////////////////////////////////////////////////////
+//TODO - pwm simulation
+void Set_Motor_Duty(TIM_HandleTypeDef *htim, uint32_t Channel, float percent);
+///////////////////////////////////////////////////////////////////////////////////
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -170,6 +176,49 @@ float acc_idle_cycles = 0;
 float load_idle_pct = 0;
 //end///////////////////////////////////////////////////////////////////////////////////////////
 
+
+//TODO pwm- simulation
+char rx_buffer[10]; // To store "100\r"
+uint8_t rx_index = 0;
+uint8_t rx_data;
+
+/* Helper to set duty cycle by percentage */
+void Set_Motor_Duty(TIM_HandleTypeDef *htim, uint32_t Channel, float percent) {
+    if (percent < 0) percent = 0;
+    if (percent > 100) percent = 100;
+    uint32_t arr = htim->Instance->ARR;
+    uint32_t pulse = (uint32_t)((percent * (arr + 1)) / 100.0f);
+    __HAL_TIM_SET_COMPARE(htim, Channel, pulse);
+}
+
+/* Callback: Runs every time a character is received via UART */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+    if (huart->Instance == USART2) {
+        // If it's a carriage return or buffer is full, process it
+        if (rx_data == '\r' || rx_data == '\n') {
+            rx_buffer[rx_index] = '\0'; // Null-terminate string
+            float new_duty = atof(rx_buffer); // Convert string to float
+
+            Set_Motor_Duty(&htim1, TIM_CHANNEL_1, new_duty);
+
+            // Send feedback back to Putty
+            char msg[30];
+            int len = sprintf(msg, "\r\nSet to: %.1f%%\r\n>> ", new_duty);
+            HAL_UART_Transmit(huart, (uint8_t*)msg, len, 10);
+
+            rx_index = 0; // Reset for next command
+        } else {
+            // Echo character back to Putty so you can see what you type
+            HAL_UART_Transmit(huart, &rx_data, 1, 10);
+
+            if (rx_index < sizeof(rx_buffer) - 1) {
+                rx_buffer[rx_index++] = rx_data;
+            }
+        }
+        // Restart interrupt listening
+        HAL_UART_Receive_IT(huart, &rx_data, 1);
+    }
+}
 /* USER CODE END 0 */
 
 /**
@@ -205,7 +254,20 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM2_Init();
   MX_USART1_UART_Init();
+  MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
+
+  ///////////////////////////////////////////////////////////////
+  //TODO - pwm simulation
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+  Set_Motor_Duty(&htim1, TIM_CHANNEL_1, 0);
+
+  /* Start the first UART interrupt reception */
+  char greeting[] = "Motor Controller Ready\r\nType duty (0-100) and press Enter\r\n>> ";
+  HAL_UART_Transmit(&huart2, (uint8_t*)greeting, strlen(greeting), 100);
+  HAL_UART_Receive_IT(&huart2, &rx_data, 1);
+  //////////////////////////////////////////////////////////////
+
 
   // This tells the DMA: "Every time TIM2 captures a value, put it in capture_buffer."
   HAL_TIM_IC_Start_DMA(&htim2, TIM_CHANNEL_1, capture_buffer, DMA_BUF_SIZE);
@@ -221,9 +283,9 @@ int main(void)
   uint8_t last_button = 1;
   HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
   
-  printf("----------------------------------------------------------------------\r\n");
-  printf("----------------------------------------------------------------------\r\n");
-  printf("----------------------------------------------------------------------\r\n");
+//  printf("----------------------------------------------------------------------\r\n");
+//  printf("----------------------------------------------------------------------\r\n");
+//  printf("----------------------------------------------------------------------\r\n");
   //end/////////////////////////////////////////////////////////////////////////////////////////////
 
   /* USER CODE END 2 */
@@ -276,24 +338,23 @@ int main(void)
 		  // Only send if the previous DMA transfer is finished
 		  if (huart1.gState == HAL_UART_STATE_READY) {
 
-//			  // Example: current_rpm = 1500, current_pwm = 75 -> "1500,75\n"
-//			  int len = sprintf(esp32_tx_buffer, "%d,%d\n", (int)current_rpm, (int)current_pwm);
-//
-//			  // Transmit to ESP32 via UART1
-//			  HAL_UART_Transmit_DMA(&huart1, (uint8_t*)esp32_tx_buffer, len);
+			  // Example: current_rpm = 1500, current_pwm = 75 -> "1500,75\n"
+			  int len = sprintf(esp32_tx_buffer, "%d,%d\n", (int)current_rpm, (int)current_pwm);
+
+			  // Transmit to ESP32 via UART1
+			  HAL_UART_Transmit_DMA(&huart1, (uint8_t*)esp32_tx_buffer, len);
 
 		    //begin///////////////////////////////////////////////////////////////////////////////////////////
 		    //TODO: Simulation — remove before production
-//			  current_rpm = 1000;
-			  current_pwm = 25;
-
-			  int simulated_noise = (rand() % 401) - 200;
-			  current_rpm = target_rpm + simulated_noise;
-			  if (current_rpm < 0) current_rpm = 0;
-			  if (current_rpm > 3500) current_rpm = 3500;
-
-			  int len = sprintf(esp32_tx_buffer, "%d,%d\n", (int)current_rpm, (int)current_pwm);
-			  HAL_UART_Transmit_DMA(&huart1, (uint8_t*)esp32_tx_buffer, len);
+//			  current_pwm = 25;
+//
+//			  int simulated_noise = (rand() % 401) - 200;
+//			  current_rpm = target_rpm + simulated_noise;
+//			  if (current_rpm < 0) current_rpm = 0;
+//			  if (current_rpm > 3500) current_rpm = 3500;
+//
+//			  int len = sprintf(esp32_tx_buffer, "%d,%d\n", (int)current_rpm, (int)current_pwm);
+//			  HAL_UART_Transmit_DMA(&huart1, (uint8_t*)esp32_tx_buffer, len);
 //			  HAL_UART_Transmit(&huart2, (uint8_t*)esp32_tx_buffer, len, 10);
 			//end/////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -412,6 +473,71 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief TIM1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM1_Init(void)
+{
+
+  /* USER CODE BEGIN TIM1_Init 0 */
+
+  /* USER CODE END TIM1_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+  TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
+
+  /* USER CODE BEGIN TIM1_Init 1 */
+
+  /* USER CODE END TIM1_Init 1 */
+  htim1.Instance = TIM1;
+  htim1.Init.Prescaler = 10-1;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim1.Init.Period = 1500-1;
+  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_PWM_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+  if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
+  sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
+  sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
+  sBreakDeadTimeConfig.DeadTime = 0;
+  sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
+  sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
+  sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
+  if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM1_Init 2 */
+
+  /* USER CODE END TIM1_Init 2 */
+  HAL_TIM_MspPostInit(&htim1);
+
 }
 
 /**
@@ -651,43 +777,66 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 }
 
 
+//TODO - uncomment
 // Triggered on UART target rpm input from ESP32
 // Using example of "1500\n" sent from ESP32:
 // 	 Each digit (1, 5, 0, 0) triggers the RxCpltCallback.
 //   When the \n arrives, it runs atoi(), and target_rpm instantly becomes the integer 1500
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-    if (huart->Instance == USART1) { // Ensure it matches your ESP32 connection
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+//    if (huart->Instance == USART1) { // Ensure it matches your ESP32 connection
+//
+//        // 1. Check for end-of-line characters
+//        if (esp32_rx_char == '\n' || esp32_rx_char == '\r') {
+//
+//            // Only process if we actually collected characters (prevents \r\n double-trigger)
+//            if (esp32_rx_index > 0) {
+//                esp32_rx_buffer[esp32_rx_index] = '\0'; // Null-terminate
+//
+//                target_rpm = atoi(esp32_rx_buffer);     // Convert to integer
+//
+//				//begin///////////////////////////////////////////////////////////////////////////////////////////
+//				//TODO: Debug only — remove before production
+//				printf("TARGET RPM: %d\r\n", target_rpm);
+//				//end/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//                esp32_rx_index = 0; // Reset index ONLY after a successful parse
+//            }
+//        }
+//        // 2. Add numeric characters to the buffer
+//        else if (esp32_rx_index < sizeof(esp32_rx_buffer) - 1) {
+//
+//            // Only accept numbers 0-9 to filter out potential serial noise/trash
+//            if (esp32_rx_char >= '0' && esp32_rx_char <= '9') {
+//                esp32_rx_buffer[esp32_rx_index++] = esp32_rx_char;
+//            }
+//        }
+//
+//        // 3. Re-prime the interrupt to catch the next byte
+//        HAL_UART_Receive_IT(&huart1, &esp32_rx_char, 1);
+//    }
+//}
 
-        // 1. Check for end-of-line characters
-        if (esp32_rx_char == '\n' || esp32_rx_char == '\r') {
 
-            // Only process if we actually collected characters (prevents \r\n double-trigger)
-            if (esp32_rx_index > 0) {
-                esp32_rx_buffer[esp32_rx_index] = '\0'; // Null-terminate
 
-                target_rpm = atoi(esp32_rx_buffer);     // Convert to integer
-
-				//begin///////////////////////////////////////////////////////////////////////////////////////////
-				//TODO: Debug only — remove before production
-				printf("TARGET RPM: %d\r\n", target_rpm);
-				//end/////////////////////////////////////////////////////////////////////////////////////////////
-
-                esp32_rx_index = 0; // Reset index ONLY after a successful parse
-            }
-        }
-        // 2. Add numeric characters to the buffer
-        else if (esp32_rx_index < sizeof(esp32_rx_buffer) - 1) {
-
-            // Only accept numbers 0-9 to filter out potential serial noise/trash
-            if (esp32_rx_char >= '0' && esp32_rx_char <= '9') {
-                esp32_rx_buffer[esp32_rx_index++] = esp32_rx_char;
-            }
-        }
-
-        // 3. Re-prime the interrupt to catch the next byte
-        HAL_UART_Receive_IT(&huart1, &esp32_rx_char, 1);
-    }
-}
+//TODO - pwm simulation
+/* * Function to set motor speed by percentage (0 to 100)
+ * Works regardless of what your ARR is set to.
+ */
+//void Set_Motor_Duty(TIM_HandleTypeDef *htim, uint32_t Channel, float percent) {
+//    // Ensure percent is within 0 and 100
+//    if (percent < 0) percent = 0;
+//    if (percent > 100) percent = 100;
+//
+//    // Get the current ARR value from the timer
+//    uint32_t arr = htim->Instance->ARR;
+//
+//    // Calculate the pulse width (CCR) based on the percentage
+//    // (percent / 100) * (ARR + 1)
+//    uint32_t pulse = (uint32_t)((percent * (arr + 1)) / 100.0f);
+//
+//    // Update the PWM channel
+//    __HAL_TIM_SET_COMPARE(htim, Channel, pulse);
+//}
 
 
 /* USER CODE END 4 */

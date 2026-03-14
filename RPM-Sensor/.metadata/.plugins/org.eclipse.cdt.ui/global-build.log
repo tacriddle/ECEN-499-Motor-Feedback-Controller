@@ -3535,3 +3535,377 @@ Finished building: default.size.stdout
  
 Finished building: optical-sensor.list
  
+14:57:20 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  37200	    484	   2516	  40200	   9d08	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+15:46:23 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+15:46:25 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+15:46:26 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_hal_msp.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_hal_msp.d" -MT"Core/Src/stm32f4xx_hal_msp.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_hal_msp.o"
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_it.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_it.d" -MT"Core/Src/stm32f4xx_it.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_it.o"
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:217:3: warning: implicit declaration of function 'Set_Motor_Duty' [-Wimplicit-function-declaration]
+  217 |   Set_Motor_Duty(&htim1, TIM_CHANNEL_1, 25);
+      |   ^~~~~~~~~~~~~~
+../Core/Src/main.c: At top level:
+../Core/Src/main.c:773:6: warning: conflicting types for 'Set_Motor_Duty'; have 'void(TIM_HandleTypeDef *, uint32_t,  float)' {aka 'void(TIM_HandleTypeDef *, long unsigned int,  float)'}
+  773 | void Set_Motor_Duty(TIM_HandleTypeDef *htim, uint32_t Channel, float percent) {
+      |      ^~~~~~~~~~~~~~
+../Core/Src/main.c:217:3: note: previous implicit declaration of 'Set_Motor_Duty' with type 'void(TIM_HandleTypeDef *, uint32_t,  float)' {aka 'void(TIM_HandleTypeDef *, long unsigned int,  float)'}
+  217 |   Set_Motor_Duty(&htim1, TIM_CHANNEL_1, 25);
+      |   ^~~~~~~~~~~~~~
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  39824	    484	   2588	  42896	   a790	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+15:47:54 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+15:47:55 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+15:47:56 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  39832	    484	   2588	  42904	   a798	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+15:48:35 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-size  optical-sensor.elf 
+   text	   data	    bss	    dec	    hex	filename
+  39832	    484	   2588	  42904	   a798	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+15:57:42 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  39832	    484	   2588	  42904	   a798	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+16:29:21 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  39832	    484	   2588	  42904	   a798	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+16:33:52 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  39832	    484	   2588	  42904	   a798	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+16:42:21 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  39832	    484	   2588	  42904	   a798	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+16:43:40 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  39832	    484	   2588	  42904	   a798	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+16:44:13 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  39832	    484	   2588	  42904	   a798	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+16:44:40 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  39832	    484	   2588	  42904	   a798	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+16:45:03 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  39832	    484	   2588	  42904	   a798	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+16:45:28 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  39832	    484	   2588	  42904	   a798	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+16:45:51 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  39832	    484	   2588	  42904	   a798	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+16:46:32 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  39832	    484	   2588	  42904	   a798	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+16:48:13 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'HAL_UART_RxCpltCallback':
+../Core/Src/main.c:212:13: error: too few arguments to function 'HAL_UART_Transmit'
+  212 |             HAL_UART_Transmit(huart, &rx_data, 1);
+      |             ^~~~~~~~~~~~~~~~~
+In file included from ../Core/Inc/stm32f4xx_hal_conf.h:411,
+                 from ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:29,
+                 from ../Core/Inc/main.h:30,
+                 from ../Core/Src/main.c:20:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:745:19: note: declared here
+  745 | HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, const uint8_t *pData, uint16_t Size, uint32_t Timeout);
+      |                   ^~~~~~~~~~~~~~~~~
+../Core/Src/main.c: At top level:
+../Core/Src/main.c:780:6: error: redefinition of 'HAL_UART_RxCpltCallback'
+  780 | void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+      |      ^~~~~~~~~~~~~~~~~~~~~~~
+../Core/Src/main.c:195:6: note: previous definition of 'HAL_UART_RxCpltCallback' with type 'void(UART_HandleTypeDef *)' {aka 'void(struct __UART_HandleTypeDef *)'}
+  195 | void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+      |      ^~~~~~~~~~~~~~~~~~~~~~~
+../Core/Src/main.c:820:6: error: redefinition of 'Set_Motor_Duty'
+  820 | void Set_Motor_Duty(TIM_HandleTypeDef *htim, uint32_t Channel, float percent) {
+      |      ^~~~~~~~~~~~~~
+../Core/Src/main.c:186:6: note: previous definition of 'Set_Motor_Duty' with type 'void(TIM_HandleTypeDef *, uint32_t,  float)' {aka 'void(TIM_HandleTypeDef *, long unsigned int,  float)'}
+  186 | void Set_Motor_Duty(TIM_HandleTypeDef *htim, uint32_t Channel, float percent) {
+      |      ^~~~~~~~~~~~~~
+make: *** [Core/Src/subdir.mk:34: Core/Src/main.o] Error 1
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+16:50:19 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+16:50:20 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+16:50:21 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'HAL_UART_RxCpltCallback':
+../Core/Src/main.c:212:13: error: too few arguments to function 'HAL_UART_Transmit'
+  212 |             HAL_UART_Transmit(huart, &rx_data, 1);
+      |             ^~~~~~~~~~~~~~~~~
+In file included from ../Core/Inc/stm32f4xx_hal_conf.h:411,
+                 from ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:29,
+                 from ../Core/Inc/main.h:30,
+                 from ../Core/Src/main.c:20:
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:745:19: note: declared here
+  745 | HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, const uint8_t *pData, uint16_t Size, uint32_t Timeout);
+      |                   ^~~~~~~~~~~~~~~~~
+make: *** [Core/Src/subdir.mk:34: Core/Src/main.o] Error 1
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+16:51:15 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+16:51:16 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+16:51:17 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  45652	    484	   2588	  48724	   be54	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+16:51:23 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-size  optical-sensor.elf 
+   text	   data	    bss	    dec	    hex	filename
+  45652	    484	   2588	  48724	   be54	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+16:55:04 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_hal_msp.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_hal_msp.d" -MT"Core/Src/stm32f4xx_hal_msp.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_hal_msp.o"
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_it.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_it.d" -MT"Core/Src/stm32f4xx_it.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_it.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  45684	    484	   2588	  48756	   be74	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+16:55:45 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  45404	    484	   2588	  48476	   bd5c	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+17:56:33 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-size  optical-sensor.elf 
+   text	   data	    bss	    dec	    hex	filename
+  45404	    484	   2588	  48476	   bd5c	optical-sensor.elf
+Finished building: default.size.stdout
+ 
