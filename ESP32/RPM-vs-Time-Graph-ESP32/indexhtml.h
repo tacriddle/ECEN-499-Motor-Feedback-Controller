@@ -73,7 +73,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 
     <div class="control-section">
       <span class="stat-label" style="color:#2c3e50">Target RPM:</span>
-      <input type="number" id="rpmInput" min="0" max="3500" value="0">
+      <input type="number" id="rpmInput" min="0" max="2000" placeholder="0 - 2000" value="0">
       <button class="btn-send" onclick="sendRPM()">SET SPEED</button>
     </div>
 
@@ -85,13 +85,23 @@ const char index_html[] PROGMEM = R"rawliteral(
 //TODO - arcade
 -->
     <div style="margin-top: 40px; text-align: center; border-top: 2px dashed #ccc; padding-top: 20px; padding-bottom: 40px;">
-        <button id="gameToggle" onclick="toggleGame()" style="padding: 12px 25px; background: #7f8c8d; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; margin: 5px;">
-            FLAPPY BRICK
+        <button id="breakButton" onclick="showArcadeMenu()" style="padding: 12px 25px; background: #34495e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; transition: 0.3s;">
+            NEED A BREAK?
         </button>
-        
-        <button id="pacToggle" onclick="togglePacman()" style="padding: 12px 25px; background: #f1c40f; color: #2c3e50; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; margin: 5px;">
-            CIRCUIT PAC
-        </button>
+
+        <div id="arcadeMenu" style="display: none; margin-top: 15px;">
+            <button id="gameToggle" onclick="toggleGame()" style="padding: 10px 20px; background: #7f8c8d; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px;">
+                FLAPPY BRICK
+            </button>
+            
+            <button id="pacToggle" onclick="togglePacman()" style="padding: 10px 20px; background: #f1c40f; color: #2c3e50; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px;">
+                CIRCUIT PAC
+            </button>
+
+            <button onclick="closeArcade()" style="padding: 10px 20px; background: #c0392b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px;">
+                CLOSE GAMES
+            </button>
+        </div>
 
         <div id="gameContainer" style="display: none; margin-top: 20px;">
             <iframe id="gameFrame" src="" style="border:none; border-radius: 12px; width: 100%; height: 700px; max-width: 500px; margin: auto; display: block;"></iframe>
@@ -103,25 +113,57 @@ const char index_html[] PROGMEM = R"rawliteral(
     </div>
 
     <script>
-    function toggleGame() {
+      // Shows the game selection buttons and hides the main "Break" button
+      function showArcadeMenu() {
+        document.getElementById('arcadeMenu').style.display = "block";
+        document.getElementById('breakButton').style.display = "none";
+      }
+
+      // Resets everything back to the "Need a Break?" state
+      function closeArcade() {
+          // Hide all containers
+          document.getElementById('arcadeMenu').style.display = "none";
+          document.getElementById('gameContainer').style.display = "none";
+          document.getElementById('pacContainer').style.display = "none";
+          
+          // Wipe the iframes to stop game logic and sound
+          document.getElementById('gameFrame').src = "";
+          document.getElementById('pacFrame').src = "";
+          
+          // Bring back the main button
+          document.getElementById('breakButton').style.display = "inline-block";
+      }
+
+      function toggleGame() {
         var c = document.getElementById('gameContainer');
         var p = document.getElementById('pacContainer');
         var f = document.getElementById('gameFrame');
+        
         if (c.style.display === "none") {
-            c.style.display = "block"; p.style.display = "none";
-            if (f.src === "" || f.src === window.location.href) f.src = "/game";
-        } else { c.style.display = "none"; f.src = ""; }
-    }
+          c.style.display = "block"; 
+          p.style.display = "none";
+          // Only set src if it's empty to prevent re-loading a game in progress
+          if (f.src === "" || f.src.includes(window.location.hostname)) f.src = "/game";
+        } else { 
+          c.style.display = "none"; 
+          f.src = ""; // Kill the game audio/logic when hidden
+        }
+      }
 
-    function togglePacman() {
+      function togglePacman() {
         var c = document.getElementById('gameContainer');
         var p = document.getElementById('pacContainer');
         var f = document.getElementById('pacFrame');
+        
         if (p.style.display === "none") {
-            p.style.display = "block"; c.style.display = "none";
-            if (f.src === "" || f.src === window.location.href) f.src = "/pacman";
-        } else { p.style.display = "none"; f.src = ""; }
-    }
+          p.style.display = "block"; 
+          c.style.display = "none";
+          if (f.src === "" || f.src.includes(window.location.hostname)) f.src = "/pacman";
+        } else { 
+          p.style.display = "none"; 
+          f.src = ""; 
+        }
+      }
     </script>
 <!--
 //end/////////////////////////////////////////////////////////////////////////////////////
@@ -138,7 +180,16 @@ const char index_html[] PROGMEM = R"rawliteral(
     function sendRPM() {
       var val = document.getElementById('rpmInput').value;
       if (val === "") return;
-      currentTarget = parseInt(val);
+      numVal = parseInt(val);
+
+      if (numVal < 0 || numVal > 2000) {
+        alert("Please enter an RPM between 0 and 2000.");
+        valInput.value = currentTarget; // Reset to the last valid target
+        return;
+      }
+
+      currentTarget = numVal;
+
       document.getElementById('target-display').innerHTML = currentTarget + '<span class="unit">RPM</span>';
       
       fetch('/setRPM?val=' + val, { keepalive: true });
@@ -178,7 +229,7 @@ const char index_html[] PROGMEM = R"rawliteral(
       { label: 'PWM', data: [], borderColor: '#008000', borderWidth: 3 }
     ];
 
-    var rpmChart = new Chart(document.getElementById('rpmChart').getContext('2d'), createChartConfig(rpmDatasets, 3500));
+    var rpmChart = new Chart(document.getElementById('rpmChart').getContext('2d'), createChartConfig(rpmDatasets, 2000));
     var pwmChart = new Chart(document.getElementById('pwmChart').getContext('2d'), createChartConfig(pwmDatasets, 100));
     
     var source = new EventSource('/events');

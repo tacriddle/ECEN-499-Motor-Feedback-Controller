@@ -105,10 +105,13 @@ void setup() {
   server.on("/setRPM", HTTP_GET, [](AsyncWebServerRequest *request){
     if (request->hasParam("val")) {
       String rpmValue = request->getParam("val")->value();
-      targetRPM = rpmValue.toInt();
+      int tempTarget = rpmValue.toInt();
+
+      // Final safety constraint
+      targetRPM = constrain(tempTarget, 0, 2000);
       
-      // Relay target to STM32 via UART
-      Serial2.print(rpmValue); 
+      // Relay constrained target to STM32
+      Serial2.print(targetRPM); 
       Serial2.print("\n");
     }
     request->send(200, "text/plain", "OK");
@@ -243,12 +246,12 @@ void updateLCDGraph(int val) {
     rpmHistory[i] = rpmHistory[i + 1];
   }
   
-  // 2. Map current RPM to pixel height (0-3500 range)
-  int yNew = graphBottom - (int)(val * graphHeight / 3500.0);
+  // 2. Map current RPM to pixel height (0-2000 range)
+  int yNew = graphBottom - (int)(val * graphHeight / 2000.0);
   rpmHistory[pointsToKeep - 1] = constrain(yNew, 5, graphBottom);
   
-  // 3. Map Target RPM to pixel height
-  int yTarget = graphBottom - (int)(targetRPM * graphHeight / 3500.0);
+  // 3. Map Target RPM to pixel height (0-2000 range)
+  int yTarget = graphBottom - (int)(targetRPM * graphHeight / 2000.0);
   yTarget = constrain(yTarget, 5, graphBottom);
 
   // 4. Drawing Pass
