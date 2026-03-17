@@ -3909,3 +3909,38 @@ arm-none-eabi-size  optical-sensor.elf
   45404	    484	   2588	  48476	   bd5c	optical-sensor.elf
 Finished building: default.size.stdout
  
+15:41:11 **** Incremental Build of configuration Debug for project magnetic-sensor-i2c ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-i2c.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28940	    468	   2076	  31484	   7afc	magnetic-sensor-i2c.elf
+Finished building: default.size.stdout
+ 
+15:41:13 **** Incremental Build of configuration Debug for project magnetic-sensor-spi ****
+make -j8 all 
+arm-none-eabi-size  magnetic-sensor-spi.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27884	    468	   2068	  30420	   76d4	magnetic-sensor-spi.elf
+Finished building: default.size.stdout
+ 
+15:41:14 **** Incremental Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "optical-sensor.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\RPM-Sensor\optical-sensor\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="optical-sensor.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: optical-sensor.elf
+ 
+arm-none-eabi-size  optical-sensor.elf 
+arm-none-eabi-objdump -h -S optical-sensor.elf  > "optical-sensor.list"
+   text	   data	    bss	    dec	    hex	filename
+  45884	    484	   2604	  48972	   bf4c	optical-sensor.elf
+Finished building: default.size.stdout
+ 
+Finished building: optical-sensor.list
+ 
+15:50:01 **** Build of configuration Debug for project optical-sensor ****
+make -j8 all 
+arm-none-eabi-size  optical-sensor.elf 
+   text	   data	    bss	    dec	    hex	filename
+  45884	    484	   2604	  48972	   bf4c	optical-sensor.elf
+Finished building: default.size.stdout
+ 

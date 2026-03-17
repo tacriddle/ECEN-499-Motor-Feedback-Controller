@@ -135,10 +135,12 @@ float get_median_of_3(float a, float b, float c) {
     if ((b <= a && a <= c) || (c <= a && a <= b)) return a;
     return c;
 }
-/////////////////////////////////////////////////////////////////////////////////////
+
+//begin///////////////////////////////////////////////////////////////////////////////////
 //TODO - pwm simulation
 void Set_Motor_Duty(TIM_HandleTypeDef *htim, uint32_t Channel, float percent);
-///////////////////////////////////////////////////////////////////////////////////
+//end/////////////////////////////////////////////////////////////////////////////////
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -177,7 +179,8 @@ float load_idle_pct = 0;
 //end///////////////////////////////////////////////////////////////////////////////////////////
 
 
-//TODO pwm- simulation
+//begin///////////////////////////////////////////////////////////////////////////////////
+//TODO - pwm simulation
 char rx_buffer[10]; // To store "100\r"
 uint8_t rx_index = 0;
 uint8_t rx_data;
@@ -190,35 +193,8 @@ void Set_Motor_Duty(TIM_HandleTypeDef *htim, uint32_t Channel, float percent) {
     uint32_t pulse = (uint32_t)((percent * (arr + 1)) / 100.0f);
     __HAL_TIM_SET_COMPARE(htim, Channel, pulse);
 }
+//end/////////////////////////////////////////////////////////////////////////////////
 
-/* Callback: Runs every time a character is received via UART */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-    if (huart->Instance == USART2) {
-        // If it's a carriage return or buffer is full, process it
-        if (rx_data == '\r' || rx_data == '\n') {
-            rx_buffer[rx_index] = '\0'; // Null-terminate string
-            float new_duty = atof(rx_buffer); // Convert string to float
-
-            Set_Motor_Duty(&htim1, TIM_CHANNEL_1, new_duty);
-
-            // Send feedback back to Putty
-            char msg[30];
-            int len = sprintf(msg, "\r\nSet to: %.1f%%\r\n>> ", new_duty);
-            HAL_UART_Transmit(huart, (uint8_t*)msg, len, 10);
-
-            rx_index = 0; // Reset for next command
-        } else {
-            // Echo character back to Putty so you can see what you type
-            HAL_UART_Transmit(huart, &rx_data, 1, 10);
-
-            if (rx_index < sizeof(rx_buffer) - 1) {
-                rx_buffer[rx_index++] = rx_data;
-            }
-        }
-        // Restart interrupt listening
-        HAL_UART_Receive_IT(huart, &rx_data, 1);
-    }
-}
 /* USER CODE END 0 */
 
 /**
@@ -257,7 +233,7 @@ int main(void)
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
 
-  ///////////////////////////////////////////////////////////////
+  //begin/////////////////////////////////////////////////////////////
   //TODO - pwm simulation
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   Set_Motor_Duty(&htim1, TIM_CHANNEL_1, 0);
@@ -266,7 +242,7 @@ int main(void)
   char greeting[] = "Motor Controller Ready\r\nType duty (0-100) and press Enter\r\n>> ";
   HAL_UART_Transmit(&huart2, (uint8_t*)greeting, strlen(greeting), 100);
   HAL_UART_Receive_IT(&huart2, &rx_data, 1);
-  //////////////////////////////////////////////////////////////
+  //end////////////////////////////////////////////////////////////
 
 
   // This tells the DMA: "Every time TIM2 captures a value, put it in capture_buffer."
@@ -777,66 +753,76 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 }
 
 
-//TODO - uncomment
 // Triggered on UART target rpm input from ESP32
 // Using example of "1500\n" sent from ESP32:
 // 	 Each digit (1, 5, 0, 0) triggers the RxCpltCallback.
 //   When the \n arrives, it runs atoi(), and target_rpm instantly becomes the integer 1500
-//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-//    if (huart->Instance == USART1) { // Ensure it matches your ESP32 connection
-//
-//        // 1. Check for end-of-line characters
-//        if (esp32_rx_char == '\n' || esp32_rx_char == '\r') {
-//
-//            // Only process if we actually collected characters (prevents \r\n double-trigger)
-//            if (esp32_rx_index > 0) {
-//                esp32_rx_buffer[esp32_rx_index] = '\0'; // Null-terminate
-//
-//                target_rpm = atoi(esp32_rx_buffer);     // Convert to integer
-//
-//				//begin///////////////////////////////////////////////////////////////////////////////////////////
-//				//TODO: Debug only — remove before production
-//				printf("TARGET RPM: %d\r\n", target_rpm);
-//				//end/////////////////////////////////////////////////////////////////////////////////////////////
-//
-//                esp32_rx_index = 0; // Reset index ONLY after a successful parse
-//            }
-//        }
-//        // 2. Add numeric characters to the buffer
-//        else if (esp32_rx_index < sizeof(esp32_rx_buffer) - 1) {
-//
-//            // Only accept numbers 0-9 to filter out potential serial noise/trash
-//            if (esp32_rx_char >= '0' && esp32_rx_char <= '9') {
-//                esp32_rx_buffer[esp32_rx_index++] = esp32_rx_char;
-//            }
-//        }
-//
-//        // 3. Re-prime the interrupt to catch the next byte
-//        HAL_UART_Receive_IT(&huart1, &esp32_rx_char, 1);
-//    }
-//}
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+    if (huart->Instance == USART1) { // Ensure it matches your ESP32 connection
+
+        // 1. Check for end-of-line characters
+        if (esp32_rx_char == '\n' || esp32_rx_char == '\r') {
+
+            // Only process if we actually collected characters (prevents \r\n double-trigger)
+            if (esp32_rx_index > 0) {
+                esp32_rx_buffer[esp32_rx_index] = '\0'; // Null-terminate
+
+                target_rpm = atoi(esp32_rx_buffer);     // Convert to integer
+
+				//begin///////////////////////////////////////////////////////////////////////////////////////////
+				//TODO: Debug only — remove before production
+				printf("TARGET RPM: %d\r\n", target_rpm);
+				//end/////////////////////////////////////////////////////////////////////////////////////////////
+
+                esp32_rx_index = 0; // Reset index ONLY after a successful parse
+            }
+        }
+        // 2. Add numeric characters to the buffer
+        else if (esp32_rx_index < sizeof(esp32_rx_buffer) - 1) {
+
+            // Only accept numbers 0-9 to filter out potential serial noise/trash
+            if (esp32_rx_char >= '0' && esp32_rx_char <= '9') {
+                esp32_rx_buffer[esp32_rx_index++] = esp32_rx_char;
+            }
+        }
+
+        // 3. Re-prime the interrupt to catch the next byte
+        HAL_UART_Receive_IT(&huart1, &esp32_rx_char, 1);
+    }
 
 
+	//begin///////////////////////////////////////////////////////////////////////////////////////////
+	//TODO: pwm simulation
+    // if received over USB connection
+    if (huart->Instance == USART2) {
+        // If it's a carriage return or buffer is full, process it
+        if (rx_data == '\r' || rx_data == '\n') {
+            rx_buffer[rx_index] = '\0'; // Null-terminate string
+            float new_duty = atof(rx_buffer); // Convert string to float
 
-//TODO - pwm simulation
-/* * Function to set motor speed by percentage (0 to 100)
- * Works regardless of what your ARR is set to.
- */
-//void Set_Motor_Duty(TIM_HandleTypeDef *htim, uint32_t Channel, float percent) {
-//    // Ensure percent is within 0 and 100
-//    if (percent < 0) percent = 0;
-//    if (percent > 100) percent = 100;
-//
-//    // Get the current ARR value from the timer
-//    uint32_t arr = htim->Instance->ARR;
-//
-//    // Calculate the pulse width (CCR) based on the percentage
-//    // (percent / 100) * (ARR + 1)
-//    uint32_t pulse = (uint32_t)((percent * (arr + 1)) / 100.0f);
-//
-//    // Update the PWM channel
-//    __HAL_TIM_SET_COMPARE(htim, Channel, pulse);
-//}
+            Set_Motor_Duty(&htim1, TIM_CHANNEL_1, new_duty);
+
+            // Send feedback back to Putty
+            char msg[30];
+            int len = sprintf(msg, "\r\nSet to: %.1f%%\r\n>> ", new_duty);
+            HAL_UART_Transmit(huart, (uint8_t*)msg, len, 10);
+
+            rx_index = 0; // Reset for next command
+        } else {
+            // Echo character back to Putty so you can see what you type
+            HAL_UART_Transmit(huart, &rx_data, 1, 10);
+
+            if (rx_index < sizeof(rx_buffer) - 1) {
+                rx_buffer[rx_index++] = rx_data;
+            }
+        }
+        // Restart interrupt listening
+        HAL_UART_Receive_IT(huart, &rx_data, 1);
+    }
+	//end/////////////////////////////////////////////////////////////////////////////////////////////
+
+}
+
 
 
 /* USER CODE END 4 */

@@ -1,0 +1,73 @@
+/*
+ * rpm_sensor.c
+ *
+ *  Created on: Mar 15, 2026
+ *      Author: young
+ */
+
+
+#include "rpm_sensor.h"
+
+extern TIM_HandleTypeDef htim2;
+
+uint32_t capture_buffer[DMA_BUF_SIZE];
+uint8_t CALC_WINDOW_MAX_IDX = CALC_WINDOW_SIZE - 1;
+uint8_t DMA_BUF_MAX_IDX = DMA_BUF_SIZE - 1;
+
+float conversion_factor = (60000000.0f * CALC_WINDOW_SIZE) / SLOTS_ON_DISK;
+uint32_t last_pulse_timestamp = 0;
+volatile uint32_t period_ticks = 0;
+volatile uint8_t new_rpm_data = 0;
+float current_rpm = 0;
+
+float median_buffer[3] = {0, 0, 0};
+uint8_t median_idx = 0;
+float alpha = 0.3f;
+float timeout_ms = 60000.0f / (MINIMUM_RPM * SLOTS_ON_DISK);
+uint32_t last_tick = 0;
+
+
+void RPM_Sensor_Init(void) {
+    HAL_TIM_IC_Start_DMA(&htim2, TIM_CHANNEL_1, capture_buffer, DMA_BUF_SIZE);
+}
+
+float get_median_of_3(float a, float b, float c) {
+    if ((a <= b && b <= c) || (c <= b && b <= a)) return b;
+    if ((b <= a && a <= c) || (c <= a && a <= b)) return a;
+    return c;
+}
+
+void RPM_Process_Data(void) {
+    if (new_rpm_data) {
+        new_rpm_data = 0;
+        float rpm_raw = conversion_factor / (float)period_ticks;
+        median_buffer[median_idx] = rpm_raw;
+        median_idx++;
+        if (median_idx >= 3) median_idx = 0;
+        float rpm_filtered = get_median_of_3(median_buffer[0], median_buffer[1], median_buffer[2]);
+        current_rpm = (alpha * rpm_filtered) + ((1.0f - alpha) * current_rpm);
+        last_tick = HAL_GetTick();
+    }
+
+    if (HAL_GetTick() - last_tick > (uint32_t)timeout_ms) {
+        current_rpm = 0;
+        median_buffer[0] = median_buffer[1] = median_buffer[2] = 0;
+    }
+}
+
+
+void HAL_TIM_IC_CaptureHalfCpltCallback(TIM_HandleTypeDef *htim) {
+    if (htim->Instance == TIM2) {
+        period_ticks = capture_buffer[CALC_WINDOW_MAX_IDX] - last_pulse_timestamp;
+        last_pulse_timestamp = capture_buffer[CALC_WINDOW_MAX_IDX];
+        new_rpm_data = 1;
+    }
+}
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
+    if (htim->Instance == TIM2) {
+        period_ticks = capture_buffer[DMA_BUF_MAX_IDX] - last_pulse_timestamp;
+        last_pulse_timestamp = capture_buffer[DMA_BUF_MAX_IDX];
+        new_rpm_data = 1;
+    }
+}

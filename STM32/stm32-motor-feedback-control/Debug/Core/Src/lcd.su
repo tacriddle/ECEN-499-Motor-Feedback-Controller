@@ -1,0 +1,10 @@
+../Core/Src/lcd.c:19:6:LCD_Update_Display	32	static
+../Core/Src/lcd.c:38:13:lcd_write_byte	24	static
+../Core/Src/lcd.c:45:13:lcd_pulse	16	static
+../Core/Src/lcd.c:52:13:lcd_write4	24	static
+../Core/Src/lcd.c:58:6:LCD_Cmd	16	static
+../Core/Src/lcd.c:63:6:LCD_Data	16	static
+../Core/Src/lcd.c:68:6:LCD_Init	8	static
+../Core/Src/lcd.c:81:6:LCD_Set_Cursor	16	static
+../Core/Src/lcd.c:89:6:LCD_Print	16	static
+../Core/Src/lcd.c:93:6:LCD_Clear	8	static

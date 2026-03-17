@@ -1,10 +1,10 @@
-17:56:33 **** Incremental Build of configuration Debug for project optical-sensor ****
+15:50:01 **** Build of configuration Debug for project optical-sensor ****
 make -j8 all 
 arm-none-eabi-size  optical-sensor.elf 
    text	   data	    bss	    dec	    hex	filename
-  45404	    484	   2588	  48476	   bd5c	optical-sensor.elf
+  45884	    484	   2604	  48972	   bf4c	optical-sensor.elf
 Finished building: default.size.stdout
  
 
-17:56:33 Build Finished. 0 errors, 0 warnings. (took 821ms)
+15:50:02 Build Finished. 0 errors, 0 warnings. (took 1s.95ms)
 

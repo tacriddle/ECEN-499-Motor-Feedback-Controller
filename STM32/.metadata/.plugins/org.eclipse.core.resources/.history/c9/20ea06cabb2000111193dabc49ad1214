@@ -1,0 +1,13 @@
+/*
+ * rpm_sensor.h
+ *
+ *  Created on: Mar 15, 2026
+ *      Author: young
+ */
+
+#ifndef INC_RPM_SENSOR_H_
+#define INC_RPM_SENSOR_H_
+
+
+
+#endif /* INC_RPM_SENSOR_H_ */

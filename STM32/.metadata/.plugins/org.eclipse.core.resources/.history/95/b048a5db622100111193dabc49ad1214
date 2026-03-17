@@ -1,0 +1,29 @@
+/*
+ * motor_control.c
+ *
+ *  Created on: Mar 15, 2026
+ *      Author: young
+ */
+
+#include "motor_control.h"
+
+extern TIM_HandleTypeDef htim1;
+
+float current_pwm = 0;
+int target_rpm = 0;
+
+void Motor_Init(void) {
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+    Set_Motor_Duty(&htim1, TIM_CHANNEL_1, 0);
+}
+
+void Set_Motor_Duty(TIM_HandleTypeDef *htim, uint32_t Channel, float percent) {
+    if (percent < 0) percent = 0;
+    if (percent > 100) percent = 100;
+
+    current_pwm = percent;
+
+    uint32_t arr = htim->Instance->ARR;
+    uint32_t pulse = (uint32_t)((percent * (arr + 1)) / 100.0f);
+    __HAL_TIM_SET_COMPARE(htim, Channel, pulse);
+}
