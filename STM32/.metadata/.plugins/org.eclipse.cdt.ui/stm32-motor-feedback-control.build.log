@@ -1,17 +1,17 @@
-17:01:38 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+12:55:35 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
 make -j8 all 
-arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc "../Core/Src/telemetry.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/telemetry.d" -MT"Core/Src/telemetry.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/telemetry.o"
 arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 Finished building target: stm32-motor-feedback-control.elf
  
 arm-none-eabi-size  stm32-motor-feedback-control.elf 
 arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
    text	   data	    bss	    dec	    hex	filename
-  49036	    492	   2684	  52212	   cbf4	stm32-motor-feedback-control.elf
+  50548	    492	   2772	  53812	   d234	stm32-motor-feedback-control.elf
 Finished building: default.size.stdout
  
 Finished building: stm32-motor-feedback-control.list
  
 
-17:01:39 Build Finished. 0 errors, 0 warnings. (took 1s.113ms)
+12:55:38 Build Finished. 0 errors, 0 warnings. (took 3s.741ms)
 

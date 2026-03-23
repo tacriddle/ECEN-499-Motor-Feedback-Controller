@@ -11,9 +11,23 @@
 #include "main.h"
 
 // PID Tuning Constants
-#define K_P  0.15f   // Proportional gain
-#define K_I  0.01f   // Integral gain
-#define K_D  0.001f  // Derivative gain
+//#define K_FF 0.0375f YES  // Feed Forward
+//#define K_P  0.02f  Maybe, 0.04 cut in half   // Proportional gain
+//#define K_I  0.015f       // Integral gain
+//#define K_D  0.f       // Derivative gain
+
+//#define K_P  0.15f   // Proportional gain
+//#define K_I  0.01f   // Integral gain
+//#define K_D  0.001f  // Derivative gain
+//#define K_FF 0.01f   // Feed Forward
+
+
+#define PID_DT 0.01f  // 10ms expressed in seconds
+
+#define MAX_PWM 100.0
+#define MIN_PWM 0.0
+#define MAX_INTEGRAL 500.0 // Anti-windup limit
+
 
 extern float current_pwm;
 extern int target_rpm;

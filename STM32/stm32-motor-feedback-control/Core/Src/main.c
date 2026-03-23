@@ -50,6 +50,7 @@ I2C_HandleTypeDef hi2c1;
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim8;
 DMA_HandleTypeDef hdma_tim2_ch1;
 
 UART_HandleTypeDef huart1;
@@ -64,6 +65,10 @@ extern uint32_t last_LCD_update;  	  // for LCD refresh every 200ms (from lcd.c)
 extern float current_rpm;	// From rpm_sensor.c
 extern float current_pwm;   // From motor_control.c
 
+extern float timeout_ms;
+extern uint32_t last_tick; // For timeout logic
+extern float median_buffer[3];
+
 extern uint32_t last_PID_run; // Track the last time PID ran
 
 /* USER CODE END PV */
@@ -77,6 +82,7 @@ static void MX_TIM2_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_I2C1_Init(void);
+static void MX_TIM8_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -128,14 +134,14 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM1_Init();
   MX_I2C1_Init();
+  MX_TIM8_Init();
   /* USER CODE BEGIN 2 */
 
+  HAL_TIM_Base_Start_IT(&htim8);
   Motor_Init();
   RPM_Sensor_Init();
   Telemetry_Init();
   LCD_Init();
-
-  Set_Motor_Duty(&htim1, TIM_CHANNEL_1, 35);
 
   /* USER CODE END 2 */
 
@@ -147,12 +153,17 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	  // Event-based (from RPM sensor) OR time-based (Handles starting from 0 and stalls)
-	  if (new_rpm_data || (HAL_GetTick() - last_PID_run >= 50)) {
-		  // Event: Calculate current_rpm and check for timeout. Time: force timeout 0 RPM check
+
+	  // Process new RPM data from sensor
+	  if (new_rpm_data) {
 		  RPM_Process_Data();
-		  // Event: calculate and apply new PWM. Time: Force PWM ramp increase to get up from 0 RPM
-//		  Motor_Update_PID();
+	  }
+
+
+	  // timeout logic to detect when RPM = 0 (If no pulses seen for too long, set RPM to zero)
+	  if (HAL_GetTick() - last_tick > (uint32_t)timeout_ms) {
+		  current_rpm = 0;
+		  median_buffer[0] = median_buffer[1] = median_buffer[2] = 0;
 	  }
 
 
@@ -384,6 +395,52 @@ static void MX_TIM2_Init(void)
 }
 
 /**
+  * @brief TIM8 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM8_Init(void)
+{
+
+  /* USER CODE BEGIN TIM8_Init 0 */
+
+  /* USER CODE END TIM8_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM8_Init 1 */
+
+  /* USER CODE END TIM8_Init 1 */
+  htim8.Instance = TIM8;
+  htim8.Init.Prescaler = 180-1;
+  htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim8.Init.Period = 9999;
+  htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim8.Init.RepetitionCounter = 0;
+  htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim8, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim8, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM8_Init 2 */
+
+  /* USER CODE END TIM8_Init 2 */
+
+}
+
+/**
   * @brief USART1 Initialization Function
   * @param None
   * @retval None
@@ -512,6 +569,15 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    if (htim->Instance == TIM8) // Runs every 10 ms
+    {
+		// Calculate and apply new PWM
+		Motor_Update_PID();
+    }
+}
 
 /* USER CODE END 4 */
 

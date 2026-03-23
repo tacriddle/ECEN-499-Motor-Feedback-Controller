@@ -71,11 +71,6 @@ void RPM_Process_Data(void) {
 		last_tick = HAL_GetTick();
 	}
 
-	// timeout logic to detect when RPM = 0 (If no pulses seen for too long, set RPM to zero)
-	if (HAL_GetTick() - last_tick > (uint32_t)timeout_ms) {
-		current_rpm = 0;
-		median_buffer[0] = median_buffer[1] = median_buffer[2] = 0;
-	}
 }
 
 

@@ -27,7 +27,7 @@ char esp32_rx_buffer[10];   		// To hold the incoming string (e.g., "3000\n") fr
 uint8_t esp32_rx_index = 0;			// Current position in buffer
 uint8_t esp32_rx_char;     			// Temp storage for 1 byte
 
-extern float kp_val;
+extern float K_P, K_I, K_D, K_FF;
 
 //begin///////////////////////////////////////////////////////////////////////////////////////////
 //TODO: pwm simulation
@@ -73,7 +73,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 
 				//begin///////////////////////////////////////////////////////////////////////////////////////////
 				//TODO: Debug only — remove before production
-				printf("TARGET RPM: %d\r\n", target_rpm);
+				printf("\r\nTARGET RPM: %d\r\n>>", target_rpm);
 				//end/////////////////////////////////////////////////////////////////////////////////////////////
 
                 esp32_rx_index = 0; // Reset index ONLY after a successful parse
@@ -89,38 +89,105 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
         }
 
         // 3. Re-prime the interrupt to catch the next byte
-        HAL_UART_Receive_IT(&huart1, &esp32_rx_char, 1);
+        HAL_UART_Receive_IT(huart, &esp32_rx_char, 1);
     }
+
+
+
+//	//begin///////////////////////////////////////////////////////////////////////////////////////////
+//	//TODO: manually change PWM duty cycle
+//    if (huart->Instance == USART2) {
+//        // If it's a carriage return or buffer is full, process it
+//        if (rx_data == '\r' || rx_data == '\n') {
+//            rx_buffer[rx_index] = '\0'; // Null-terminate string
+//            float new_duty = atof(rx_buffer); // Convert string to float
+//
+//            Set_Motor_Duty(&htim1, TIM_CHANNEL_1, new_duty);
+//
+//            // Send feedback back to Putty
+//            char msg[30];
+//            int len = sprintf(msg, "\r\nSet to: %.3f%%\r\n>> ", new_duty);
+//            HAL_UART_Transmit(huart, (uint8_t*)msg, len, 10);
+//
+//            rx_index = 0; // Reset for next command
+//        } else {
+//            // Echo character back to Putty so you can see what you type
+//            HAL_UART_Transmit(huart, &rx_data, 1, 10);
+//
+//            if (rx_index < sizeof(rx_buffer) - 1) {
+//                rx_buffer[rx_index++] = rx_data;
+//            }
+//        }
+//        // Restart interrupt listening
+//        HAL_UART_Receive_IT(huart, &rx_data, 1);
+//    }
+//	//end/////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
 	//begin///////////////////////////////////////////////////////////////////////////////////////////
-	//TODO: pwm simulation
-    if (huart->Instance == USART2) {
-        // If it's a carriage return or buffer is full, process it
-        if (rx_data == '\r' || rx_data == '\n') {
-            rx_buffer[rx_index] = '\0'; // Null-terminate string
-            float new_duty = atof(rx_buffer); // Convert string to float
+	//TODO: manually change kp, ki, and kd values
+	if (huart->Instance == USART2) {
+		// If it's a carriage return or newline, process the buffer
+		if (rx_data == '\r' || rx_data == '\n') {
+			rx_buffer[rx_index] = '\0'; // Null-terminate string
 
-//            Set_Motor_Duty(&htim1, TIM_CHANNEL_1, new_duty);
-            kp_val = new_duty;
+			if (rx_index > 1) { // Ensure we have at least a prefix and a number
+				char command = rx_buffer[0];        // Extract the first letter
+				float value = atof(&rx_buffer[1]);  // Convert the rest of the string to a float
 
-            // Send feedback back to Putty
-            char msg[30];
-            int len = sprintf(msg, "\r\nSet to: %.3f%%\r\n>> ", new_duty);
-            HAL_UART_Transmit(huart, (uint8_t*)msg, len, 10);
+				char msg[60];
+				int len = 0;
 
-            rx_index = 0; // Reset for next command
-        } else {
-            // Echo character back to Putty so you can see what you type
-            HAL_UART_Transmit(huart, &rx_data, 1, 10);
+				// Route the value to the correct variable based on the prefix
+				if (command == 'P' || command == 'p') {
+					K_P = value;
+					len = sprintf(msg, "\r\nKp set to: %.3f\r\n>> ", K_P);
+				}
+				else if (command == 'I' || command == 'i') {
+					K_I = value;
+					len = sprintf(msg, "\r\nKi set to: %.3f\r\n>> ", K_I);
+				}
+				else if (command == 'D' || command == 'd') {
+					K_D = value;
+					len = sprintf(msg, "\r\nKd set to: %.3f\r\n>> ", K_D);
+				}
+				else if (command == 'F' || command == 'f') {
+					K_FF = value;
+					len = sprintf(msg, "\r\nKff set to: %.3f\r\n>> ", K_FF);
+				}
+				else {
+					len = sprintf(msg, "\r\nError: Prefix with P, I, D, or F (e.g., P0.5)\r\n>> ");
+				}
 
-            if (rx_index < sizeof(rx_buffer) - 1) {
-                rx_buffer[rx_index++] = rx_data;
-            }
-        }
-        // Restart interrupt listening
-        HAL_UART_Receive_IT(huart, &rx_data, 1);
-    }
+				// Send the feedback back to PuTTY
+				HAL_UART_Transmit(huart, (uint8_t*)msg, len, 50);
+
+			} else if (rx_index == 1) {
+				// Handled cases where the user just typed a single character and hit enter
+				char error_msg[] = "\r\nInvalid format. Use P, I, D, or F (e.g., P1.5)\r\n>> ";
+				HAL_UART_Transmit(huart, (uint8_t*)error_msg, sizeof(error_msg)-1, 50);
+			} else {
+				 // Just hit enter on an empty line, print a fresh prompt
+				 char prompt[] = "\r\n>> ";
+				 HAL_UART_Transmit(huart, (uint8_t*)prompt, sizeof(prompt)-1, 50);
+			}
+
+			rx_index = 0; // Reset index for the next command
+
+		} else {
+			// Echo character back to Putty so you can see what you type
+			HAL_UART_Transmit(huart, &rx_data, 1, 10);
+
+			// Store character if there's room in the buffer
+			if (rx_index < sizeof(rx_buffer) - 1) {
+				rx_buffer[rx_index++] = rx_data;
+			}
+		}
+
+		// Restart interrupt listening
+		HAL_UART_Receive_IT(huart, &rx_data, 1);
+	}
 	//end/////////////////////////////////////////////////////////////////////////////////////////////
 
 }

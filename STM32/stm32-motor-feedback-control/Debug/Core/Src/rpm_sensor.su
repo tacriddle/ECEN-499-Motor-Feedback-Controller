@@ -1,5 +1,5 @@
 ../Core/Src/rpm_sensor.c:43:6:RPM_Sensor_Init	8	static
 ../Core/Src/rpm_sensor.c:48:7:get_median_of_3	24	static
 ../Core/Src/rpm_sensor.c:55:6:RPM_Process_Data	16	static
-../Core/Src/rpm_sensor.c:84:6:HAL_TIM_IC_CaptureHalfCpltCallback	16	static
-../Core/Src/rpm_sensor.c:101:6:HAL_TIM_IC_CaptureCallback	16	static
+../Core/Src/rpm_sensor.c:79:6:HAL_TIM_IC_CaptureHalfCpltCallback	16	static
+../Core/Src/rpm_sensor.c:96:6:HAL_TIM_IC_CaptureCallback	16	static
