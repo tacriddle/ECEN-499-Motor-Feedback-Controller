@@ -40,8 +40,6 @@ extern float timeout_ms;
 // Function Prototypes
 void RPM_Sensor_Init(void);
 void RPM_Process_Data(void);
-float get_median_of_3(float a, float b, float c);
-void RPM_Update_From_DMA(void);
-
+void RPM_Check_Timeout(void);
 
 #endif /* INC_RPM_SENSOR_H_ */

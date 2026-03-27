@@ -19,8 +19,6 @@
 void LCD_Init(void);
 void LCD_Cmd(uint8_t cmd);
 void LCD_Data(uint8_t data);
-void LCD_Print(const char *s);
-void LCD_Set_Cursor(uint8_t row, uint8_t col);
 void LCD_Clear(void);
 
 void LCD_Update_Display(void);

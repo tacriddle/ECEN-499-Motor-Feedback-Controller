@@ -25,9 +25,13 @@
 #include "motor_control.h"
 #include "telemetry.h"
 #include "lcd.h"
+
+//begin///////////////////////////////////////////////////////////////////////////////////////////
+//TODO: Debug only — remove before production
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+//end///////////////////////////////////////////////////////////////////////////////////////////
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,40 +51,31 @@
 
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c1;
+DMA_HandleTypeDef hdma_i2c1_tx;
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim8;
 DMA_HandleTypeDef hdma_tim2_ch1;
 
+UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
-UART_HandleTypeDef huart3;
+DMA_HandleTypeDef hdma_usart1_tx;
 DMA_HandleTypeDef hdma_usart2_tx;
-DMA_HandleTypeDef hdma_usart3_tx;
 
 /* USER CODE BEGIN PV */
 
 volatile uint8_t lcd_transmit_flag = 0;
 volatile uint8_t esp32_transmit_flag = 0;
-extern uint32_t last_ESP32_transmit;  // for transmitting to ESP32 every 100ms (from telemetry.c)
-extern uint32_t last_LCD_update;  	  // for LCD refresh every 200ms (from lcd.c)
-extern float rpm_raw;
-extern float current_rpm;	// From rpm_sensor.c
-extern float current_pwm;   // From motor_control.c
 
+extern float current_rpm;	// From rpm_sensor.c
+
+//begin///////////////////////////////////////////////////////////////////////////////////////////
+//TODO: Debug only — remove before production
 extern float needed_pwm;
 extern float output_pwm;
-extern float error;
-
-extern float timeout_ms;
-extern uint32_t last_tick; // For timeout logic
-extern float median_buffer[3];
-
-extern uint32_t last_PID_run; // Track the last time PID ran
-
-uint32_t last_time1 = 0;
-
-uint32_t tim_tick = 0;
+extern float rpm_error;
+//end///////////////////////////////////////////////////////////////////////////////////////////
 
 /* USER CODE END PV */
 
@@ -91,135 +86,10 @@ static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_I2C1_Init(void);
-static void MX_USART3_UART_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM8_Init(void);
+static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
-//
-//// --- Temporary Calibration Variables ---
-//#define CALIBRATION_REVS 100
-//uint32_t slot_accumulators[17] = {0};
-//uint32_t rev_count = 0;
-//volatile uint8_t cal_slot = 0;
-//volatile uint32_t cal_last_period = 0;
-//uint8_t synced = 0;
-//uint8_t calibration_done = 0;
-//
-//extern volatile uint32_t period_ticks;
-//extern volatile uint8_t new_rpm_data;
-//
-//// 0 = Idle
-//// 1 = Spinning up (waiting 3 seconds)
-//// 2 = Actively running calibration
-//// 3 = Calibration finished
-//uint8_t cal_state = 0;
-//uint32_t cal_spinup_timer = 0;
-//
-//// Calculates the deviations and prints the C-code array
-//void Print_Calibration_Map(void) {
-//    // 1. Find the total average ticks across the whole disk
-//    uint64_t total_ticks = 0;
-//    for (int i = 0; i < 17; i++) {
-//        total_ticks += slot_accumulators[i];
-//    }
-//    float global_avg = (float)total_ticks / (17.0f * CALIBRATION_REVS);
-//
-//    printf("\r\n--- CALIBRATION COMPLETE ---\r\n");
-//    printf("Copy and paste this array into your code:\r\n\r\n");
-//    printf("float ecc_map[17] = {\r\n");
-//
-//    // 2. Calculate the multiplier for each individual slot
-//    for (int i = 0; i < 17; i++) {
-//        float slot_avg = (float)slot_accumulators[i] / (float)CALIBRATION_REVS;
-//
-//        // If the slot is physically narrow (fast), the correction will be > 1.0
-//        // If the slot is physically wide (slow), the correction will be < 1.0
-//        float correction = global_avg / slot_avg;
-//
-//        // Note: Using standard integer casting for printf in case
-//        // floating-point formatting (%f) is disabled in your STM32 IDE
-//        int whole = (int)correction;
-//        int fraction = (int)((correction - whole) * 10000);
-//
-//        printf("    %d.%04df", whole, fraction);
-//
-//        if (i < 16) printf(",");
-//        if ((i + 1) % 4 == 0) printf("\r\n"); // Line break every 4 numbers for neatness
-//    }
-//    printf("\r\n};\r\n\r\n");
-//}
-//
-//// Add this new state variable at the top with your others
-//uint32_t running_avg_period = 0;
-//
-//// --- Add this single new variable at the top ---
-//uint32_t temp_buffer[17] = {0};
-//
-//// --- Existing State Variables ---
-//uint32_t baseline_period = 0;
-//uint8_t need_baseline = 1;
-//
-//void RPM_Run_Calibration(void) {
-//    if (new_rpm_data && !calibration_done) {
-//        new_rpm_data = 0;
-//
-//        if (period_ticks == 0) return;
-//
-//        extern float conversion_factor;
-//        float rpm_raw = conversion_factor / (float)period_ticks;
-//        if (rpm_raw > 10000.0f) return;
-//
-//        // 1. ESTABLISH ORGANIC BASELINE
-//        if (need_baseline) {
-//            baseline_period = period_ticks;
-//            need_baseline = 0;
-//            return;
-//        }
-//
-//        // 2. SYNC LOGIC: Look for the gap
-//        if (period_ticks > (baseline_period * 1.75f)) {
-//
-//            if (synced) {
-//                if (cal_slot == 17) {
-//
-//                    // --- THE FIX: SHADOW BUFFER COMMIT ---
-//                    // The revolution was perfect! Copy the temporary data into the master math.
-//                    for(int i = 0; i < 17; i++) {
-//                        slot_accumulators[i] += temp_buffer[i];
-//                    }
-//
-//                    rev_count++;
-//                    if (rev_count % 10 == 0) {
-//                        printf("Logged %lu/100 revolutions...\r\n", rev_count);
-//                    }
-//                } else {
-//                    // Misfire! The shadow buffer is ignored. No bad data is saved.
-//                }
-//            }
-//
-//            if (rev_count >= CALIBRATION_REVS) {
-//                calibration_done = 1;
-//                Print_Calibration_Map();
-//            }
-//
-//            cal_slot = 0;
-//            synced = 1;
-//            need_baseline = 1;
-//            return;
-//        }
-//
-//        // 3. ACCUMULATE TO SHADOW BUFFER
-//        if (synced && cal_slot < 17) {
-//            // Write to the temporary holding pen instead of the master array
-//            temp_buffer[cal_slot] = period_ticks;
-//            cal_slot++;
-//        }
-//
-//        // 4. DRIFT TRACKING
-//        baseline_period = (uint32_t)((0.7f * (float)baseline_period) + (0.3f * (float)period_ticks));
-//    }
-//}
-//
 
 /* USER CODE END PFP */
 
@@ -268,9 +138,9 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM1_Init();
   MX_I2C1_Init();
-  MX_USART3_UART_Init();
   MX_TIM2_Init();
   MX_TIM8_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_Base_Start_IT(&htim8);
@@ -278,23 +148,6 @@ int main(void)
   RPM_Sensor_Init();
   Telemetry_Init();
   LCD_Init();
-
-  // --- CALIBRATION STATE MACHINE ---
-//  // Start the motor at a steady 30% duty cycle
-//  Set_Motor_Duty(&htim1, TIM_CHANNEL_1, 30);
-//
-//  // Reset the calibration variables inside rpm_sensor.c (just to be safe)
-//  extern uint32_t rev_count;
-//  extern uint8_t calibration_done;
-//  rev_count = 0;
-//  calibration_done = 0;
-//
-//  // Kick off the spin-up timer
-//  cal_spinup_timer = HAL_GetTick();
-//  cal_state = 1; // Move to State 1: Spin-up
-  // --- END CALIBRATION STATE MACHINE ---
-
-//  Set_Motor_Duty(&htim1, TIM_CHANNEL_1, 30);
 
   /* USER CODE END 2 */
 
@@ -306,76 +159,33 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-//	  // --- CALIBRATION STATE MACHINE ---
-//	  if (cal_state == 1) {
-//	      // STATE 1: Wait 3 seconds (3000 ms) for the spindle to reach steady-state
-//	      if (HAL_GetTick() - cal_spinup_timer >= 3000) {
-//	          printf("\r\nSpin-up complete. Starting 100-rev calibration...\r\n");
-//	          cal_state = 2; // Move to State 2: Calibrating
-//	      }
-//	  }
-//	  else if (cal_state == 2) {
-//	      // STATE 2: Run the calibration script
-//	      RPM_Run_Calibration();
-//
-//	      // Check if the script finished its 100 revolutions
-//	      extern uint8_t calibration_done;
-//	      if (calibration_done) {
-////	          Set_Motor_Duty(&htim1, TIM_CHANNEL_1, 0); // Safely stop the motor!
-//	          cal_state = 3; // Move to State 3: Done
-//	          printf("Cal done\n\r");
-//	      }
-//	  }
-//	  // --- END CALIBRATION STATE MACHINE ---
-
-
-
 	  // Process new RPM data from sensor
 	  if (new_rpm_data) {
 		  RPM_Process_Data();
 		  new_rpm_data = 0;
-//		  printf("RPM: %d\n\r", (int)rpm_raw);
 	  }
 
 
 	  // timeout logic to detect when RPM = 0 (If no pulses seen for too long, set RPM to zero)
-	  if (HAL_GetTick() - last_tick > (uint32_t)timeout_ms) {
-		  current_rpm = 0;
-//		  median_buffer[0], median_buffer[1], median_buffer[2], median_buffer[3], median_buffer[4], median_buffer[5], median_buffer[6] = 0;
-//		  median_buffer[0], median_buffer[1], median_buffer[2], median_buffer[3], median_buffer[4] = 0;
-		  median_buffer[0] = median_buffer[1] = median_buffer[2] = 0;
-		  last_tick = HAL_GetTick();
-	  }
+	  RPM_Check_Timeout();
 
-///////////////////////
+
 	  if (esp32_transmit_flag >= 4) {
 	      esp32_transmit_flag -= 4;
-//		  current_rpm += 100;
-//		  if (current_rpm > 2000) {
-//			  current_rpm = 0;
-//		  }
-//          printf("RPM: %d\r\n", (int)current_rpm);
 	      Telemetry_Transmit_ESP32();
-	      printf("NEEDED_PWM: %d | OUTPUT_PWM: %d | CURRENT_RPM: %d | ERROR: %d\n\r", (int)needed_pwm, (int)output_pwm, (int)current_rpm, (int)error);
+	      //begin///////////////////////////////////////////////////////////////////////////////////////////
+	      //TODO: Debug only — remove before production
+//	      printf("NEEDED_PWM: %d | OUTPUT_PWM: %d | CURRENT_RPM: %d | ERROR: %d\n\r", (int)needed_pwm, (int)output_pwm, (int)current_rpm, (int)rpm_error);
+	      //end///////////////////////////////////////////////////////////////////////////////////////////
+
 	  }
-//////////////////////////
 
-//	  // transmit current RPM and PWM to ESP32 for graphing every 100ms
-//	  if (HAL_GetTick() - last_ESP32_transmit >= 100) {
-//		  Telemetry_Transmit_ESP32();
-//	  }
 
-//////////////////////////////
-//	  if (lcd_transmit_flag >= 20) {
-//	      lcd_transmit_flag -= 20;
-//	      LCD_Update_Display();
-//	  }
-///////////////////////////
 
-//	  // transmit current RPM and PWM to LCD every 200ms
-//	  if (HAL_GetTick() - last_LCD_update >= 200) {
-//		  LCD_Update_Display();
-//	  }
+	  if (lcd_transmit_flag >= 20) {
+	      lcd_transmit_flag -= 20;
+	      LCD_Update_Display();
+	  }
 
 
   }
@@ -640,6 +450,39 @@ static void MX_TIM8_Init(void)
 }
 
 /**
+  * @brief USART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART1_Init 0 */
+
+  /* USER CODE END USART1_Init 0 */
+
+  /* USER CODE BEGIN USART1_Init 1 */
+
+  /* USER CODE END USART1_Init 1 */
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 115200;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART1_Init 2 */
+
+  /* USER CODE END USART1_Init 2 */
+
+}
+
+/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -673,39 +516,6 @@ static void MX_USART2_UART_Init(void)
 }
 
 /**
-  * @brief USART3 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART3_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART3_Init 0 */
-
-  /* USER CODE END USART3_Init 0 */
-
-  /* USER CODE BEGIN USART3_Init 1 */
-
-  /* USER CODE END USART3_Init 1 */
-  huart3.Instance = USART3;
-  huart3.Init.BaudRate = 115200;
-  huart3.Init.WordLength = UART_WORDLENGTH_8B;
-  huart3.Init.StopBits = UART_STOPBITS_1;
-  huart3.Init.Parity = UART_PARITY_NONE;
-  huart3.Init.Mode = UART_MODE_TX_RX;
-  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart3) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART3_Init 2 */
-
-  /* USER CODE END USART3_Init 2 */
-
-}
-
-/**
   * Enable DMA controller clock
   */
 static void MX_DMA_Init(void)
@@ -713,17 +523,21 @@ static void MX_DMA_Init(void)
 
   /* DMA controller clock enable */
   __HAL_RCC_DMA1_CLK_ENABLE();
+  __HAL_RCC_DMA2_CLK_ENABLE();
 
   /* DMA interrupt init */
-  /* DMA1_Stream3_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
   /* DMA1_Stream5_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
   /* DMA1_Stream6_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
+  /* DMA1_Stream7_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream7_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream7_IRQn);
+  /* DMA2_Stream7_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream7_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream7_IRQn);
 
 }
 
@@ -772,15 +586,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim->Instance == TIM8) // Runs every 10 ms
     {
-//    	RPM_Update_From_DMA();
 		// Calculate and apply new PWM
 		Motor_Update_PID();
-		// flag to transmit current RPM and PWM to ESP32 for graphing
+		// flag to transmit current RPM and PWM to ESP32 and LCD
 		esp32_transmit_flag += 1;
 		lcd_transmit_flag += 1;
-
-		tim_tick += 1;
-
     }
 }
 

@@ -1,6 +1,7 @@
-../Core/Src/rpm_sensor.c:45:6:RPM_Sensor_Init	8	static
-../Core/Src/rpm_sensor.c:52:6:RPM_Process_Data	16	static
-../Core/Src/rpm_sensor.c:81:6:swap	24	static
-../Core/Src/rpm_sensor.c:87:7:get_median_of_3	40	static
-../Core/Src/rpm_sensor.c:100:6:HAL_TIM_IC_CaptureHalfCpltCallback	16	static
-../Core/Src/rpm_sensor.c:117:6:HAL_TIM_IC_CaptureCallback	16	static
+../Core/Src/rpm_sensor.c:46:13:swap	24	static
+../Core/Src/rpm_sensor.c:52:14:get_median_of_3	40	static
+../Core/Src/rpm_sensor.c:62:6:RPM_Sensor_Init	8	static
+../Core/Src/rpm_sensor.c:70:6:RPM_Process_Data	16	static
+../Core/Src/rpm_sensor.c:101:6:HAL_TIM_IC_CaptureHalfCpltCallback	16	static
+../Core/Src/rpm_sensor.c:118:6:HAL_TIM_IC_CaptureCallback	16	static
+../Core/Src/rpm_sensor.c:130:6:RPM_Check_Timeout	8	static

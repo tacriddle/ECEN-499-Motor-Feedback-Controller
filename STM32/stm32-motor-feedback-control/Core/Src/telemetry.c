@@ -12,13 +12,10 @@
 #include <string.h>
 #include <stdlib.h>
 
-extern UART_HandleTypeDef huart3;
 extern UART_HandleTypeDef huart2;
+extern UART_HandleTypeDef huart1;
 extern TIM_HandleTypeDef htim1;
 
-extern float current_rpm;  // Defined in rpm_sensor.c
-extern float current_pwm;  // Defined in motor_control.c
-extern float target_rpm;     // Defined in motor_control.c
 
 // ESP32
 uint32_t last_ESP32_transmit = 0; 	// transmit to ESP32 every 100ms
@@ -27,9 +24,6 @@ char esp32_rx_buffer[10];   		// To hold the incoming string (e.g., "3000\n") fr
 uint8_t esp32_rx_index = 0;			// Current position in buffer
 uint8_t esp32_rx_char;     			// Temp storage for 1 byte
 
-extern float K_P, K_I, K_D, K_FF;
-extern float D_alpha;
-extern float rpm_alpha;
 
 //begin///////////////////////////////////////////////////////////////////////////////////////////
 //TODO: pwm simulation
@@ -43,7 +37,7 @@ void Telemetry_Init(void) {
     char greeting[] = "Motor Controller Ready\r\nType duty (0-100) and press Enter\r\n>> ";
     HAL_UART_Transmit(&huart2, (uint8_t*)greeting, strlen(greeting), 100);
     HAL_UART_Receive_IT(&huart2, &rx_data, 1);
-    HAL_UART_Receive_IT(&huart3, &esp32_rx_char, 1);
+    HAL_UART_Receive_IT(&huart1, &esp32_rx_char, 1);
 }
 
 // 1. Define a packed structure for the telemetry packet
@@ -58,8 +52,8 @@ typedef struct __attribute__((packed)) {
 void Telemetry_Transmit_ESP32(void) {
     static TelemetryPacket_t packet;
 
-    // Check huart3 (the ESP32 link) state
-    if (huart3.gState == HAL_UART_STATE_READY) {
+    // Check huart1 (the ESP32 link) state
+    if (huart1.gState == HAL_UART_STATE_READY) {
 
         // 1. PACK the data
     	packet.header = 0x7E;
@@ -67,44 +61,18 @@ void Telemetry_Transmit_ESP32(void) {
         packet.pwm = (uint16_t)current_pwm;
         packet.footer = 0xAA;
 
-//        // --- DEBUG: LOCAL UNPACK TO UART2 ---
-//        // We cast the struct to a pointer of its own type (local verification)
-//        TelemetryPacket_t* debug_ptr = &packet;
-//
-//        char debug_msg[64];
-//        // We extract the values back out of the struct to see if they survived the packing
-//        int len = sprintf(debug_msg, "PACKED: RPM=%u, PWM=%u, Footer=0x%02X\r\n",
-//                          debug_ptr->rpm, debug_ptr->pwm, debug_ptr->footer);
-//
-//        // Send human-readable text to your PC (huart2)
-//        HAL_UART_Transmit(&huart2, (uint8_t*)debug_msg, len, 50);
-//        // ------------------------------------
-
-        // 2. TRANSMIT the raw binary bytes to the ESP32 (huart3)
-        HAL_UART_Transmit_DMA(&huart3, (uint8_t*)&packet, sizeof(packet));
+        // 2. TRANSMIT the raw binary bytes to the ESP32 (huart1)
+        HAL_UART_Transmit_DMA(&huart1, (uint8_t*)&packet, sizeof(packet));
 
         last_ESP32_transmit = HAL_GetTick();
     }
 }
 
-//void Telemetry_Transmit_ESP32(void) {
-//	// Only send if the previous DMA transfer is finished
-//	if (huart3.gState == HAL_UART_STATE_READY) {
-//
-//		current_rpm += 100;
-//		if (current_rpm > 2000) current_rpm = 0;
-//
-//		// Example: current_rpm = 1500, current_pwm = 75 -> "1500,75\n"
-//		int len = sprintf(esp32_tx_buffer, "%d,%d\n", (int)current_rpm, (int)current_pwm);
-//		HAL_UART_Transmit_DMA(&huart3, (uint8_t*)esp32_tx_buffer, len);
-//		last_ESP32_transmit = HAL_GetTick();
-//	}
-//}
 
 
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-    if (huart->Instance == USART3) {
+    if (huart->Instance == USART1) {
     	// Triggered on UART target rpm input from ESP32
     	// Using example of "1500\n" sent from ESP32:
     	// 	 Each digit (1, 5, 0, 0) triggers the RxCpltCallback.
@@ -120,7 +88,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 
 				//begin///////////////////////////////////////////////////////////////////////////////////////////
 				//TODO: Debug only — remove before production
-				printf("\r\nTARGET RPM: %d\r\n>>", target_rpm);
+				printf("\r\nTARGET RPM: %d\r\n>>", (int)target_rpm);
 				//end/////////////////////////////////////////////////////////////////////////////////////////////
 
                 esp32_rx_index = 0; // Reset index ONLY after a successful parse

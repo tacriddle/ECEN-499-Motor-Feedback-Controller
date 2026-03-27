@@ -9,21 +9,20 @@
 #include "rpm_sensor.h"
 
 extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim3;
 extern DMA_HandleTypeDef hdma_tim2_ch1;
 
-uint32_t capture_buffer[DMA_BUF_SIZE];
+static uint32_t capture_buffer[DMA_BUF_SIZE];
 
 // Indices for the end of the first half and total buffer
 // These define our "capture windows" for the DMA interrupts
-uint8_t CALC_WINDOW_MAX_IDX = CALC_WINDOW_SIZE - 1;
-uint8_t DMA_BUF_MAX_IDX = DMA_BUF_SIZE - 1;
+static uint8_t CALC_WINDOW_MAX_IDX = CALC_WINDOW_SIZE - 1;
+static uint8_t DMA_BUF_MAX_IDX = DMA_BUF_SIZE - 1;
 
 // Conversion Constant Calculation:
 // We measure ticks between pulses. To get RPM:
 // RPM = (60,000,000 us/min) / (Time for 1 revolution in us)
 // Time for 1 rev = (Avg time between pulses) * SLOTS_ON_DISK
-float conversion_factor = (60000000.0f * CALC_WINDOW_SIZE) / SLOTS_ON_DISK;
+static float conversion_factor = (60000000.0f * CALC_WINDOW_SIZE) / SLOTS_ON_DISK;
 
 uint32_t last_pulse_timestamp = 0; 	// Stores the final timestamp of the previous DMA batch
 volatile uint32_t period_ticks = 0; // Raw timer ticks over the current window
@@ -42,10 +41,29 @@ float timeout_ms = 60000.0f / (MINIMUM_RPM * SLOTS_ON_DISK);
 uint32_t last_tick = 0; // For timeout logic
 
 
+
+// Helper to swap two floats
+static void swap(float *p, float *q) {
+    float t = *p;
+    *p = *q;
+    *q = t;
+}
+
+static float get_median_of_3(float a, float b, float c) {
+    float buf[3] = {a, b, c};
+    if (buf[0] > buf[1]) swap(&buf[0], &buf[1]);
+    if (buf[1] > buf[2]) swap(&buf[1], &buf[2]);
+    if (buf[0] > buf[1]) swap(&buf[0], &buf[1]);
+    return buf[1];
+}
+
+
+
 void RPM_Sensor_Init(void) {
 	// This tells the DMA: "Every time TIM3 captures a value, put it in capture_buffer."
     HAL_TIM_IC_Start_DMA(&htim2, TIM_CHANNEL_1, capture_buffer, DMA_BUF_SIZE);
 }
+
 
 
 // Process new RPM measurement if a DMA interrupt has occurred
@@ -77,23 +95,6 @@ void RPM_Process_Data(void) {
 }
 
 
-// Helper to swap two floats
-void swap(float *p, float *q) {
-    float t = *p;
-    *p = *q;
-    *q = t;
-}
-
-float get_median_of_3(float a, float b, float c) {
-    float buf[3] = {a, b, c};
-    if (buf[0] > buf[1]) swap(&buf[0], &buf[1]);
-    if (buf[1] > buf[2]) swap(&buf[1], &buf[2]);
-    if (buf[0] > buf[1]) swap(&buf[0], &buf[1]);
-    return buf[1];
-}
-
-
-
 
 // Triggered when DMA fills the FIRST half of the buffer (Indices 0 to CALC_WINDOW_MAX_IDX)
 // CALC_WINDOW_MAX_IDX = (DMA_BUF_SIZE / 2) - 1
@@ -123,5 +124,13 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
         last_pulse_timestamp = capture_buffer[DMA_BUF_MAX_IDX];
 
         new_rpm_data = 1;
+    }
+}
+
+void RPM_Check_Timeout(void) {
+    if (HAL_GetTick() - last_tick > (uint32_t)timeout_ms) {
+        current_rpm = 0;
+        median_buffer[0] = median_buffer[1] = median_buffer[2] = 0;
+        last_tick = HAL_GetTick();
     }
 }

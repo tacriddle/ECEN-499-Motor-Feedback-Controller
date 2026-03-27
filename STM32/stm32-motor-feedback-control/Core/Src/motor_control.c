@@ -6,31 +6,21 @@
  */
 
 #include "motor_control.h"
-#include <stdbool.h>
-
-// Used for "Soft Start" so drill ramps up smoothly rather than jerking to life instantly
-#define RAMP_STEP 10 // Define how many RPM to increase per PID cycle (e.g., 10 RPM per update)
-//static float ramped_target_rpm = 0; // The "moving" target for the PID
+#include "rpm_sensor.h"
 
 extern TIM_HandleTypeDef htim1;
 
 float current_pwm = 0;
 float target_rpm = 0;
-extern float current_rpm; // From rpm_sensor.c
-float previous_rpm = 0.0;
-
-uint32_t last_PID_run = 0; // Track the last time PID ran
 
 // Global variables to store state between function calls
-float cutoff_freq = 10;
 float D_alpha = 0.2f; // Derivative filter factor (0.0 to 1.0). Lower = smoother.
-// --- Internal PID State Variables ---
 float integral_sum = 0.0f;
 float previous_error = 0.0f;
 float filtered_derivative = 0.0f; // Stores the smoothed derivative
 float needed_pwm = 0;
 float output_pwm = 0;
-float error = 0;
+float rpm_error = 0;
 
 float K_P = 0.05, K_I = 0.0, K_D = 0.0, K_FF = 0.0;
 
@@ -58,36 +48,32 @@ void Motor_Update_PID(void) {
         Set_Motor_Duty(&htim1, TIM_CHANNEL_1, 0.0f);
         integral_sum = 0.0f;
         previous_error = 0.0f;
+        rpm_error = 0.0f;
         filtered_derivative = 0.0f; // Reset filter state on stop
         return;
     }
 
     // 1. Calculate the error
-    error = target_rpm - current_rpm;
+    rpm_error = target_rpm - current_rpm;
 
     // 2. Proportional Term
-    float P_out = K_P * error;
+    float P_out = K_P * rpm_error;
 
 //    // 3. Integral Term with Anti-Windup
-//    integral_sum += error * PID_DT;
+//    integral_sum += rpm_error * PID_DT;
 //    float I_out = K_I * integral_sum;
 //
 //    if (I_out > 100.0f) {
 //        I_out = 100.0f;
-//        integral_sum = 100.0f / K_I;
+//        if (K_I != 0) integral_sum = 100.0f / K_I;
 //    } else if (I_out < 0.0f) {
 //        I_out = 0.0f;
 //        integral_sum = 0.0f;
 //    }
 //
 //    // 4. Filtered Derivative Term
-//    // Calculate raw derivative
-//    float raw_derivative = (error - previous_error) / PID_DT;
-//
-//    // Apply EMA Filter: (New Value * alpha) + (Old Value * (1 - alpha))
+//    float raw_derivative = (rpm_error - previous_error) / PID_DT;
 //    filtered_derivative = (D_alpha * raw_derivative) + ((1.0f - D_alpha) * filtered_derivative);
-//
-//    // Calculate final D output using the smoothed value
 //    float D_out = K_D * filtered_derivative;
 
     // 5. Calculate total PID output
@@ -95,18 +81,13 @@ void Motor_Update_PID(void) {
     needed_pwm = ((target_rpm / MAX_RPM) * MAX_PWM) * 100.0f;
     output_pwm = needed_pwm + P_out;
 
-//    printf("NEEDED_PWM: %d | OUTPUT_PWM: %d | CURRENT_RPM: %d | ERROR: %d\n\r", (int)needed_pwm, (int)output_pwm, (int)current_rpm, (int)error);
-
     // 6. Final safety clamp
     if (output_pwm > 100.0f) output_pwm = 100.0f;
     if (output_pwm < 0.0f) output_pwm = 0.0f;
 
     // 7. Save the current error for the next loop
-    previous_error = error;
+    previous_error = rpm_error;
 
     // 8. Apply the new duty cycle
     Set_Motor_Duty(&htim1, TIM_CHANNEL_1, output_pwm);
-    current_pwm = output_pwm;
-
-//    printf("CURRENT_RPM: %d | ERROR: %d | OUTPUT_PWM: %d \n\r", current_rpm, error, output_pwm);
 }
