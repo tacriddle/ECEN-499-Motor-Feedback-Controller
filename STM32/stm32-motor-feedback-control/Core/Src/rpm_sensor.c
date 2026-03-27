@@ -5,10 +5,12 @@
  *      Author: young
  */
 
-
+#include <stdio.h>
 #include "rpm_sensor.h"
 
 extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim3;
+extern DMA_HandleTypeDef hdma_tim2_ch1;
 
 uint32_t capture_buffer[DMA_BUF_SIZE];
 
@@ -32,8 +34,8 @@ float current_rpm = 0; 				// Resultant filtered RPM
 float median_buffer[3] = {0, 0, 0};
 uint8_t median_idx = 0;
 
-// Smoothing factor (Lower = smoother but slower response. 30% weight to new data, 70% to history)
-float alpha = 0.3f;
+// Smoothing factor (Lower = smoother but slower response. 5% weight to new data, 95% to history)
+float rpm_alpha = 0.1f;
 
 // Calculate max allowable time between pulses before assuming motor has stopped
 float timeout_ms = 60000.0f / (MINIMUM_RPM * SLOTS_ON_DISK);
@@ -41,37 +43,56 @@ uint32_t last_tick = 0; // For timeout logic
 
 
 void RPM_Sensor_Init(void) {
-	// This tells the DMA: "Every time TIM2 captures a value, put it in capture_buffer."
+	// This tells the DMA: "Every time TIM3 captures a value, put it in capture_buffer."
     HAL_TIM_IC_Start_DMA(&htim2, TIM_CHANNEL_1, capture_buffer, DMA_BUF_SIZE);
 }
 
-float get_median_of_3(float a, float b, float c) {
-    if ((a <= b && b <= c) || (c <= b && b <= a)) return b;
-    if ((b <= a && a <= c) || (c <= a && a <= b)) return a;
-    return c;
-}
 
 // Process new RPM measurement if a DMA interrupt has occurred
 void RPM_Process_Data(void) {
-	if (new_rpm_data) {
-		new_rpm_data = 0;
-		// Step 1: Calculate raw RPM from timer ticks
-		float rpm_raw = conversion_factor / (float)period_ticks;
-
-		// Step 2: Median Filter - Rejects single-point noise/glitches
-		median_buffer[median_idx] = rpm_raw;
-		median_idx++;
-		if (median_idx >= 3) median_idx = 0;
-		float rpm_filtered = get_median_of_3(median_buffer[0], median_buffer[1], median_buffer[2]);
-
-		// Step 3: Complementary Alpha Filter - Smooths out quantization jitter
-		current_rpm = (alpha * rpm_filtered) + ((1.0f - alpha) * current_rpm);
-
-		// Update timeout timestamp
-		last_tick = HAL_GetTick();
+	// --- 1. THE SHIELD: Prevent Divide-by-Zero ---
+	if (period_ticks == 0) {
+		return; // Hardware timer hasn't ticked. Ignore this DMA batch.
 	}
 
+	// Calculate raw RPM from timer ticks
+	float rpm_raw = conversion_factor / (float)period_ticks;
+
+	// --- 2. THE SANITY CHECK: Is this physically possible? ---
+	if (rpm_raw > 5000.0f) {
+		return; // Mathematically impossible for this drill press. Throw it out.
+	}
+
+	// Step 2: Median Filter - Rejects single-point noise/glitches
+	median_buffer[median_idx] = rpm_raw;
+	median_idx++;
+	if (median_idx >= 3) median_idx = 0;
+	float rpm_filtered = get_median_of_3(median_buffer[0], median_buffer[1], median_buffer[2]);
+
+	// Step 3: Complementary Alpha Filter - Smooths out quantization jitter
+	current_rpm = (rpm_alpha * rpm_filtered) + ((1.0f - rpm_alpha) * current_rpm);
+
+	// Update timeout timestamp
+	last_tick = HAL_GetTick();
 }
+
+
+// Helper to swap two floats
+void swap(float *p, float *q) {
+    float t = *p;
+    *p = *q;
+    *q = t;
+}
+
+float get_median_of_3(float a, float b, float c) {
+    float buf[3] = {a, b, c};
+    if (buf[0] > buf[1]) swap(&buf[0], &buf[1]);
+    if (buf[1] > buf[2]) swap(&buf[1], &buf[2]);
+    if (buf[0] > buf[1]) swap(&buf[0], &buf[1]);
+    return buf[1];
+}
+
+
 
 
 // Triggered when DMA fills the FIRST half of the buffer (Indices 0 to CALC_WINDOW_MAX_IDX)

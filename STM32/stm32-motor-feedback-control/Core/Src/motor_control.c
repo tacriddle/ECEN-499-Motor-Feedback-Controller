@@ -15,18 +15,24 @@
 extern TIM_HandleTypeDef htim1;
 
 float current_pwm = 0;
-int target_rpm = 0;
+float target_rpm = 0;
 extern float current_rpm; // From rpm_sensor.c
 float previous_rpm = 0.0;
 
 uint32_t last_PID_run = 0; // Track the last time PID ran
 
 // Global variables to store state between function calls
-float integral = 0;
-float previous_error = 0;
+float cutoff_freq = 10;
+float D_alpha = 0.2f; // Derivative filter factor (0.0 to 1.0). Lower = smoother.
+// --- Internal PID State Variables ---
+float integral_sum = 0.0f;
+float previous_error = 0.0f;
+float filtered_derivative = 0.0f; // Stores the smoothed derivative
+float needed_pwm = 0;
+float output_pwm = 0;
+float error = 0;
 
-
-float K_P = 0.0, K_I = 0.0, K_D = 0.0, K_FF = 0.01;
+float K_P = 0.05, K_I = 0.0, K_D = 0.0, K_FF = 0.0;
 
 
 void Motor_Init(void) {
@@ -47,137 +53,60 @@ void Set_Motor_Duty(TIM_HandleTypeDef *htim, uint32_t Channel, float percent) {
 }
 
 
-
-// 3.0
 void Motor_Update_PID(void) {
-    // 1. Calculate the current error
-    float error = target_rpm - current_rpm;
-
-    // 2. Feed-Forward Term (Instantly sets a baseline power)
-    float FF_out = K_FF * target_rpm;
-
-    // 3. Proportional term
-    float P_out = K_P * error;
-
-    // 4. Smarter Integral term with dynamic anti-windup
-    // Only accumulate error if the output isn't saturated.
-    // This prevents massive overshoots when recovering from a stall.
-    float tentative_output = FF_out + P_out + (K_I * integral);
-    bool is_saturated = (tentative_output >= MAX_PWM && error > 0) ||
-                        (tentative_output <= MIN_PWM && error < 0);
-
-    if (!is_saturated) {
-        integral += (error * PID_DT);
+    if (target_rpm <= 0.0f) {
+        Set_Motor_Duty(&htim1, TIM_CHANNEL_1, 0.0f);
+        integral_sum = 0.0f;
+        previous_error = 0.0f;
+        filtered_derivative = 0.0f; // Reset filter state on stop
+        return;
     }
 
-    // Keep your absolute limits as a secondary safety net
-    if (integral > MAX_INTEGRAL) integral = MAX_INTEGRAL;
-    if (integral < -MAX_INTEGRAL) integral = -MAX_INTEGRAL;
+    // 1. Calculate the error
+    error = target_rpm - current_rpm;
 
-    float I_out = K_I * integral;
+    // 2. Proportional Term
+    float P_out = K_P * error;
 
-    // 5. Derivative on Measurement (Prevents "Derivative Kick" on target changes)
-    float derivative = - (current_rpm - previous_rpm) / PID_DT;
-    float D_out = K_D * derivative;
+//    // 3. Integral Term with Anti-Windup
+//    integral_sum += error * PID_DT;
+//    float I_out = K_I * integral_sum;
+//
+//    if (I_out > 100.0f) {
+//        I_out = 100.0f;
+//        integral_sum = 100.0f / K_I;
+//    } else if (I_out < 0.0f) {
+//        I_out = 0.0f;
+//        integral_sum = 0.0f;
+//    }
+//
+//    // 4. Filtered Derivative Term
+//    // Calculate raw derivative
+//    float raw_derivative = (error - previous_error) / PID_DT;
+//
+//    // Apply EMA Filter: (New Value * alpha) + (Old Value * (1 - alpha))
+//    filtered_derivative = (D_alpha * raw_derivative) + ((1.0f - D_alpha) * filtered_derivative);
+//
+//    // Calculate final D output using the smoothed value
+//    float D_out = K_D * filtered_derivative;
 
-    // 6. Calculate total output
-    float output = FF_out + P_out + I_out + D_out;
+    // 5. Calculate total PID output
+//    float error_pwm = P_out + I_out + D_out;
+    needed_pwm = ((target_rpm / MAX_RPM) * MAX_PWM) * 100.0f;
+    output_pwm = needed_pwm + P_out;
 
-    // 7. Save states for the next loop
-    previous_rpm = current_rpm;
+//    printf("NEEDED_PWM: %d | OUTPUT_PWM: %d | CURRENT_RPM: %d | ERROR: %d\n\r", (int)needed_pwm, (int)output_pwm, (int)current_rpm, (int)error);
 
-    // 8. Clamp the output to valid PWM range
-    if (output > MAX_PWM) output = MAX_PWM;
-    if (output < MIN_PWM) output = MIN_PWM;
+    // 6. Final safety clamp
+    if (output_pwm > 100.0f) output_pwm = 100.0f;
+    if (output_pwm < 0.0f) output_pwm = 0.0f;
 
-    Set_Motor_Duty(&htim1, TIM_CHANNEL_1, output);
+    // 7. Save the current error for the next loop
+    previous_error = error;
+
+    // 8. Apply the new duty cycle
+    Set_Motor_Duty(&htim1, TIM_CHANNEL_1, output_pwm);
+    current_pwm = output_pwm;
+
+//    printf("CURRENT_RPM: %d | ERROR: %d | OUTPUT_PWM: %d \n\r", current_rpm, error, output_pwm);
 }
-
-
-
-////2.0
-//void Motor_Update_PID(void) {
-//    // 1. Calculate the current error
-//    float error = target_rpm - current_rpm;
-//
-//    // 2. Proportional term
-//    float P_out = K_P * error;
-//
-//    // 3. Integral term (accumulating error over time)
-//    integral += (error * dt);
-//
-//    // CRITICAL: Integral Anti-Windup
-//    // Prevents the integral from growing infinitely if the motor gets completely stalled
-//    if (integral > MAX_INTEGRAL) integral = MAX_INTEGRAL;
-//    if (integral < -MAX_INTEGRAL) integral = -MAX_INTEGRAL;
-//
-//    float I_out = K_I * integral;
-//
-//    // 4. Derivative term (rate of change)
-//    float derivative = (error - previous_error) / dt;
-//    float D_out = K_D * derivative;
-//
-//    // 5. Calculate total output
-//    float output = P_out + I_out + D_out;
-//
-//    // 6. Save current error for the next loop's derivative calculation
-//    previous_error = error;
-//
-//    // 7. Clamp the output to your valid PWM range
-//    if (output > MAX_PWM) output = MAX_PWM;
-//    if (output < MIN_PWM) output = MIN_PWM;
-//
-//	Set_Motor_Duty(&htim1, TIM_CHANNEL_1, output);
-//	last_PID_run = HAL_GetTick();
-//}
-
-
-
-//// 1.0
-//void Motor_Update_PID(void) {
-//    // 1. Kill switch / Reset
-//    if (target_rpm <= 0) {
-//        Set_Motor_Duty(&htim1, TIM_CHANNEL_1, 0);
-//        ramped_target_rpm = 0;
-//        error_integral = 0;
-//        last_error = 0;
-//        return;
-//    }
-//
-//    // 2. Feed-Forward Calculation
-//    // Use the 0-2000 RPM -> 0-75% PWM mapping as our baseline baseline
-//    // 75 / 2000 = 0.0375
-//    float base_pwm = target_rpm * 0.0375f;
-//
-//    // 3. Calculate Error
-//    // You can swap target_rpm for ramped_target_rpm if you re-enable soft start
-//    float error = target_rpm - current_rpm;
-//
-//    // 4. PID Math
-//    float p_term = K_P * error;
-//
-//    error_integral += error;
-//
-//    // ANTI-WINDUP FIX:
-//    // Previously, you limited error_integral to 500.
-//    // With K_I at 0.01, your max i_term was (500 * 0.01) = 5% PWM.
-//    // This limits the integral's ability to correct heavy loads.
-//    // It is usually better to limit the actual i_term output, rather than the raw error sum.
-//    float i_term = K_I * error_integral;
-//
-//    // Clamp the i_term so it can only add or subtract a maximum of, say, 25% PWM
-//    if (i_term > 25.0f) {
-//        i_term = 25.0f;
-//        error_integral = 25.0f / K_I; // Keep the accumulator in sync
-//    } else if (i_term < -25.0f) {
-//        i_term = -25.0f;
-//        error_integral = -25.0f / K_I;
-//    }
-//
-//    // 5. Sum Base PWM + PID Corrections
-//    // If the drill hits a heavy load, RPM drops, error goes up, P and I add to the base_pwm.
-//    float output_pwm = base_pwm + p_term + i_term;
-//    Set_Motor_Duty(&htim1, TIM_CHANNEL_1, output_pwm);
-//    last_PID_run = HAL_GetTick();
-//}
-

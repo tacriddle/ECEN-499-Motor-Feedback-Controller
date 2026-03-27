@@ -8,16 +8,16 @@
 #include <Arduino.h>
 
 
-//start///////////////////////////////////////////////////////////////////////////////////
-//TODO - arcade
-#include "flappy.h"
-#include <Preferences.h>
-Preferences prefs;
-int highScore = 0;
+// //start///////////////////////////////////////////////////////////////////////////////////
+// //TODO - arcade
+// #include "flappy.h"
+// #include <Preferences.h>
+// Preferences prefs;
+// int highScore = 0;
 
-#include "pacman.h"
-int pacHighScore = 0; 
-//end/////////////////////////////////////////////////////////////////////////////////////
+// #include "pacman.h"
+// int pacHighScore = 0; 
+// //end/////////////////////////////////////////////////////////////////////////////////////
 
 
 // 1. WiFi.h (Built-in)
@@ -53,6 +53,8 @@ AsyncEventSource events("/events"); // For streaming live data to the browser
 
 // --- System Variables ---
 int rpmHistory[320];    // History buffer for LCD graph (matches screen width)
+int lastRpmHistory[320]; 
+int lastTargetY = 135; 
 int targetRPM = 0;      // Current setpoint sent to STM32
 String displayAddress = "";
 
@@ -64,6 +66,9 @@ void handleSystemButton();
 
 
 void setup() {
+  pinMode(2, OUTPUT); //built-in LED
+
+
   // 1. Hardware Pin Initialization
   pinMode(32, OUTPUT); 
   digitalWrite(32, HIGH);    // Power on LCD Backlight
@@ -75,6 +80,7 @@ void setup() {
 
   // 3. TFT Display Initialization
   tft.init();
+  // SPI.setFrequency(80000000); // Manually force 80MHz on the bus
   tft.setRotation(1); 
   tft.fillScreen(TFT_RED);
   tft.setTextColor(TFT_WHITE);
@@ -125,66 +131,66 @@ void setup() {
   });
 
 
-  //start///////////////////////////////////////////////////////////////////////////////////
-  //TODO - arcade
+  // //start///////////////////////////////////////////////////////////////////////////////////
+  // //TODO - arcade
 
-  // flappy brick
-  server.on("/game", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/html", flappy_html);
-  });
+  // // flappy brick
+  // server.on("/game", HTTP_GET, [](AsyncWebServerRequest *request){
+  //   request->send_P(200, "text/html", flappy_html);
+  // });
 
-  // 1. Get the current high score
-  server.on("/getHighScore", HTTP_GET, [](AsyncWebServerRequest *request){
-      prefs.begin("drill-game", true); // open in read-only
-      highScore = prefs.getInt("high", 0);
-      prefs.end();
-      request->send(200, "text/plain", String(highScore));
-  });
+  // // 1. Get the current high score
+  // server.on("/getHighScore", HTTP_GET, [](AsyncWebServerRequest *request){
+  //     prefs.begin("drill-game", true); // open in read-only
+  //     highScore = prefs.getInt("high", 0);
+  //     prefs.end();
+  //     request->send(200, "text/plain", String(highScore));
+  // });
 
-  // 2. Set a new high score
-  server.on("/setHighScore", HTTP_GET, [](AsyncWebServerRequest *request){
-      if (request->hasParam("score")) {
-          int newScore = request->getParam("score")->value().toInt();
-          prefs.begin("drill-game", false); // open in write mode
-          int currentHigh = prefs.getInt("high", 0);
-          if (newScore > currentHigh) {
-              prefs.putInt("high", newScore);
-              highScore = newScore;
-          }
-          prefs.end();
-      }
-      request->send(200, "text/plain", "OK");
-  });
+  // // 2. Set a new high score
+  // server.on("/setHighScore", HTTP_GET, [](AsyncWebServerRequest *request){
+  //     if (request->hasParam("score")) {
+  //         int newScore = request->getParam("score")->value().toInt();
+  //         prefs.begin("drill-game", false); // open in write mode
+  //         int currentHigh = prefs.getInt("high", 0);
+  //         if (newScore > currentHigh) {
+  //             prefs.putInt("high", newScore);
+  //             highScore = newScore;
+  //         }
+  //         prefs.end();
+  //     }
+  //     request->send(200, "text/plain", "OK");
+  // });
 
 
-  // pacman
-  server.on("/pacman", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/html", pacman_html);
-  });
+  // // pacman
+  // server.on("/pacman", HTTP_GET, [](AsyncWebServerRequest *request){
+  //   request->send_P(200, "text/html", pacman_html);
+  // });
 
-  // 1. Get Pac-Man High Score (Persistent)
-  server.on("/getPacScore", HTTP_GET, [](AsyncWebServerRequest *request){
-      prefs.begin("drill-game", true); // Open in read-only
-      int currentPacHigh = prefs.getInt("pachigh", 0);
-      prefs.end();
-      request->send(200, "text/plain", String(currentPacHigh));
-  });
+  // // 1. Get Pac-Man High Score (Persistent)
+  // server.on("/getPacScore", HTTP_GET, [](AsyncWebServerRequest *request){
+  //     prefs.begin("drill-game", true); // Open in read-only
+  //     int currentPacHigh = prefs.getInt("pachigh", 0);
+  //     prefs.end();
+  //     request->send(200, "text/plain", String(currentPacHigh));
+  // });
 
-  // 2. Set Pac-Man High Score (Persistent)
-  server.on("/setPacScore", HTTP_GET, [](AsyncWebServerRequest *request){
-      if (request->hasParam("score")) {
-          int newScore = request->getParam("score")->value().toInt();
+  // // 2. Set Pac-Man High Score (Persistent)
+  // server.on("/setPacScore", HTTP_GET, [](AsyncWebServerRequest *request){
+  //     if (request->hasParam("score")) {
+  //         int newScore = request->getParam("score")->value().toInt();
           
-          prefs.begin("drill-game", false); // Open in read-write
-          prefs.putInt("pachigh", newScore);
-          prefs.end();
+  //         prefs.begin("drill-game", false); // Open in read-write
+  //         prefs.putInt("pachigh", newScore);
+  //         prefs.end();
           
-          Serial.print("New Pac-Man High Score Saved: ");
-          Serial.println(newScore);
-      }
-      request->send(200, "text/plain", "OK");
-  });
-  //end/////////////////////////////////////////////////////////////////////////////////////
+  //         Serial.print("New Pac-Man High Score Saved: ");
+  //         Serial.println(newScore);
+  //     }
+  //     request->send(200, "text/plain", "OK");
+  // });
+  // //end/////////////////////////////////////////////////////////////////////////////////////
 
 
   // Start Server and Events
@@ -198,6 +204,11 @@ void setup() {
   tft.setTextColor(TFT_MAROON);
   tft.drawCentreString(displayAddress, 160, 150, 2);
 
+  for(int i=0; i<320; i++) {
+    lastRpmHistory[i] = 135; // Start all "previous" points at the bottom
+    rpmHistory[i] = 135;
+  }
+
   // 7. Initialize STM32 State
   // Force Target RPM to 0 on startup/reset for safety
   targetRPM = 0;
@@ -205,7 +216,117 @@ void setup() {
   Serial2.print("0\n");
 }
 
+// // 1.0
+// void loop() {
+//   // Check if user is holding the BOOT button to restart system
+//   if (digitalRead(0) == LOW) {
+//     handleSystemButton();
+//   }
 
+//   // Handle incoming Telemetry from STM32
+//   if (Serial2.available()) {
+//     // Read CSV formatted data "RPM,PWM"
+//     String data = Serial2.readStringUntil('\n');
+//     int commaIndex = data.indexOf(',');
+
+//     Serial.println(data);
+
+//     if (commaIndex != -1) { 
+//       // 1. Broadcast to all connected web browsers
+//       events.send(data.c_str(), "message", millis());
+
+//       // 2. Extract RPM and update physical LCD display
+//       int rpm = data.substring(0, commaIndex).toInt();
+//       updateLCDGraph(rpm);
+//     }
+//   }
+// }
+
+
+// //3.0
+// void loop() {
+//   Serial.println(ESP.getFreeHeap());
+  
+//   if (digitalRead(0) == LOW) handleSystemButton();
+
+//   static char rx_buffer[32]; // Fixed size, no memory fragmentation
+//   static int rx_idx = 0;
+
+//   // --- CRITICAL: PURGE BACKLOG ---
+//   // If the buffer has more than 2 full packets (approx 20 bytes), 
+//   // skip them so we only see the NEWEST data.
+//   if (Serial2.available() > 20) {
+//     while (Serial2.available() > 10) {
+//       Serial2.read(); // Dump old data into the void
+//     }
+//   }
+
+//   // --- FAST PARSE ---
+//   while (Serial2.available() > 0) {
+//     char c = Serial2.read();
+    
+//     if (c == '\n' || rx_idx >= 31) {
+//       rx_buffer[rx_idx] = '\0'; // Null terminate
+      
+//       // Look for comma in the char array
+//       char* commaPos = strchr(rx_buffer, ',');
+//       if (commaPos != NULL) {
+//         int rpm = atoi(rx_buffer); // Fast conversion
+        
+//         // 1. Update LCD (Now optimized)
+//         updateLCDGraph(rpm);
+
+//         // 2. Throttle Web Updates (Only send every 5th packet to save WiFi airtime)
+//         static int webThrottle = 0;
+//         if (webThrottle++ >= 5) {
+//           events.send(rx_buffer, "message", millis());
+//           webThrottle = 0;
+//         }
+//       }
+//       rx_idx = 0; // Reset for next packet
+//     } else {
+//       rx_buffer[rx_idx++] = c;
+//     }
+//   }
+// }
+
+
+// // 2.0
+// void loop() {
+//   Serial.println(ESP.getFreeHeap());
+
+//   if (digitalRead(0) == LOW) {
+//     handleSystemButton();
+//   }
+
+//   static String rx_buffer = ""; 
+
+//   while (Serial2.available() > 0) {
+//     char incoming = Serial2.read();
+    
+//     if (incoming == '\n') {
+//       // We found the end of a message! Process it immediately.
+//       int commaIndex = rx_buffer.indexOf(',');
+//       if (commaIndex != -1) {
+//         events.send(rx_buffer.c_str(), "message", millis());
+//         int rpm = rx_buffer.substring(0, commaIndex).toInt();
+//         updateLCDGraph(rpm);
+//       }
+//       rx_buffer = ""; // Clear for next message
+//     } else {
+//       rx_buffer += incoming; // Keep building the string
+//     }
+//   }
+// }
+
+
+
+typedef struct __attribute__((packed)) {
+    uint8_t  header; // Set this to 0x7E on STM32
+    uint16_t rpm;
+    uint16_t pwm;
+    uint8_t  footer; // Set this to 0xAA on STM32
+} TelemetryPacket_t;
 
 void loop() {
   // Check if user is holding the BOOT button to restart system
@@ -213,74 +334,221 @@ void loop() {
     handleSystemButton();
   }
 
-  // Handle incoming Telemetry from STM32
-  if (Serial2.available()) {
-    // Read CSV formatted data "RPM,PWM"
-    String data = Serial2.readStringUntil('\n');
-    int commaIndex = data.indexOf(',');
+  static uint8_t rx_buffer[sizeof(TelemetryPacket_t)];
+  static int rx_index = 0;
 
-    if (commaIndex != -1) { 
-      // 1. Broadcast to all connected web browsers
-      events.send(data.c_str(), "message", millis());
+  // --- 1. THE LAG KILLER (Backlog Purge) ---
+  // If the ESP32 got distracted by WiFi and the STM32 piled up data,
+  // we throw away the old packets. 18 bytes = 3 full packets.
+  if (Serial2.available() > 18) {
+    while (Serial2.available() > 6) {
+      Serial2.read(); // Dump into the void
+    }
+    rx_index = 0; // Reset our sync since we just dumped data
+  }
 
-      // 2. Extract RPM and update physical LCD display
-      int rpm = data.substring(0, commaIndex).toInt();
-      updateLCDGraph(rpm);
+  // --- 2. THE FAST PARSER ---
+  while (Serial2.available() > 0) {
+    uint8_t c = Serial2.read();
+
+    // STATE A: Looking for the Start Byte
+    if (rx_index == 0) {
+      if (c == 0x7E) {
+        rx_buffer[rx_index++] = c;
+      }
+    } 
+    // STATE B: Filling the rest of the packet
+    else {
+      rx_buffer[rx_index++] = c;
+
+      // STATE C: Packet is full (6 bytes received)
+      if (rx_index == sizeof(TelemetryPacket_t)) {
+        
+        // Final Safety Check: Did the packet end exactly as expected?
+        if (rx_buffer[5] == 0xAA) {
+          
+          // Cast the raw bytes directly into our struct (Microsecond fast!)
+          TelemetryPacket_t* packet = (TelemetryPacket_t*)rx_buffer;
+
+          // 1. Update the physical LCD immediately
+          updateLCDGraph(packet->rpm);
+
+          // 2. Broadcast to web browsers (Throttled!)
+          // Sending web data faster than 10Hz (100ms) will crash the ESP32 async server
+          static uint32_t lastWebUpdate = 0;
+          if (millis() - lastWebUpdate > 100) { 
+            // Format back to "RPM,PWM" so your HTML/JS doesn't need to change
+            char webData[16];
+            snprintf(webData, sizeof(webData), "%u,%u", packet->rpm, packet->pwm);
+            events.send(webData, "message", millis());
+            
+            lastWebUpdate = millis();
+          }
+        }
+        
+        // Reset index to start hunting for the next 0x7E header
+        rx_index = 0;
+      }
     }
   }
 }
 
+// // 2.3 sec delay
+// void loop() {
+//   if (digitalRead(0) == LOW) handleSystemButton();
+
+//   static TelemetryPacket_t incomingPacket;
+//   static uint8_t* bytePtr = (uint8_t*)&incomingPacket;
+//   static int rx_idx = 0;
+
+//   while (Serial2.available() > 0) {
+//     uint8_t c = Serial2.read();
+
+//     // If we are looking for a start byte
+//     if (rx_idx == 0) {
+//       if (c == 0x7E) {
+//         bytePtr[rx_idx++] = c;
+//       }
+//     } 
+//     else {
+//       // We already found the header, just fill the rest
+//       bytePtr[rx_idx++] = c;
+
+//       if (rx_idx == sizeof(TelemetryPacket_t)) {
+//         if (incomingPacket.footer == 0xAA) {
+          
+//           // SUCCESS: Print the actual values, not the sum!
+//           Serial.print("SUCCESS! RPM: ");
+//           Serial.print(incomingPacket.rpm);
+//           Serial.print(" | PWM: ");
+//           Serial.println(incomingPacket.pwm);
+
+//           updateLCDGraph(incomingPacket.rpm);
+
+//           // Web Throttle
+//           static uint32_t lastWeb = 0;
+//           if (millis() - lastWeb > 100) {
+//             char webBuf[32];
+//             sprintf(webBuf, "%u,%u", incomingPacket.rpm, incomingPacket.pwm);
+//             events.send(webBuf, "message", millis());
+//             lastWeb = millis();
+//           }
+//         } else {
+//           Serial.println("FOOTER MISMATCH - SYNC LOST");
+//         }
+//         rx_idx = 0; // Always reset
+//       }
+//     }
+//   }
+// }
 
 
-/**
- * Renders the real-time graph and target line on the 1.9" LCD.
- */
+
 void updateLCDGraph(int val) {
-  const int pointsToKeep = 100; // Number of horizontal data points
-  const int pixelWidth = 3;     // Width scale factor
-  const int graphBottom = 135;  // Baseline Y coordinate
-  const int graphHeight = 130;  // Maximum pixel height of data
+  const int pointsToKeep = 100; 
+  const int pixelWidth = 3;     
+  const int graphBottom = 135;  
+  const int graphHeight = 130;  
 
-  // 1. Shift data history left by one
-  for (int i = 0; i < pointsToKeep - 1; i++) {
-    rpmHistory[i] = rpmHistory[i + 1];
+  tft.startWrite(); 
+
+  // --- 1. ERASE PREVIOUS TARGET LINE (Only Once!) ---
+  // Erasing this once outside the loop saves 99 unnecessary SPI commands
+  if (lastTargetY != 0) {
+    tft.drawFastHLine(0, lastTargetY, 300, TFT_WHITE);
   }
-  
-  // 2. Map current RPM to pixel height (0-2000 range)
+
+  // --- 2. ERASE PREVIOUS DATA & SHIFT ---
+  for (int i = 1; i < pointsToKeep; i++) {
+    int x0 = (i - 1) * pixelWidth;
+    int x1 = i * pixelWidth;
+    
+    // Erase only the old red segment
+    tft.drawLine(x0, lastRpmHistory[i-1], x1, lastRpmHistory[i], TFT_WHITE);
+    
+    // Shift data while we are already in the loop (Efficiency!)
+    rpmHistory[i-1] = rpmHistory[i];
+  }
+
+  // --- 3. CALCULATE NEW DATA ---
   int yNew = graphBottom - (int)(val * graphHeight / 2000.0);
   rpmHistory[pointsToKeep - 1] = constrain(yNew, 5, graphBottom);
   
-  // 3. Map Target RPM to pixel height (0-2000 range)
   int yTarget = graphBottom - (int)(targetRPM * graphHeight / 2000.0);
   yTarget = constrain(yTarget, 5, graphBottom);
 
-  // 4. Drawing Pass
-  tft.startWrite();
-  tft.fillRect(0, 0, 300, graphBottom + 1, TFT_WHITE); // Clear previous frame
-
-  // Draw 0-RPM Baseline (Black - 3 pixels thick)
-  tft.drawFastHLine(0, graphBottom - 1, 320, TFT_BLACK);
-  tft.drawFastHLine(0, graphBottom, 320, TFT_BLACK); 
-  tft.drawFastHLine(0, graphBottom + 1, 320, TFT_BLACK);
-
-  // Draw Target Setpoint Line (Red - 3 pixels thick)
-  tft.drawFastHLine(0, yTarget - 1, 300, TFT_BLUE);
+  // --- 4. DRAW NEW TARGET LINE ---
   tft.drawFastHLine(0, yTarget, 300, TFT_BLUE);
-  tft.drawFastHLine(0, yTarget + 1, 300, TFT_BLUE);
+  lastTargetY = yTarget; // Store for next erase
 
-  // Draw Actual RPM Trace (Blue - 3 pixels thick)
+  // --- 5. DRAW NEW DATA & SAVE HISTORY ---
   for (int i = 1; i < pointsToKeep; i++) {
     int x0 = (i - 1) * pixelWidth;
     int y0 = rpmHistory[i - 1];
     int x1 = i * pixelWidth;
     int y1 = rpmHistory[i];
 
-    tft.drawLine(x0, y0 - 1, x1, y1 - 1, TFT_RED);
     tft.drawLine(x0, y0, x1, y1, TFT_RED);
-    tft.drawLine(x0, y0 + 1, x1, y1 + 1, TFT_RED);
+    
+    // Lock these coordinates into history for the NEXT frame's erase step
+    lastRpmHistory[i-1] = y0;
+    lastRpmHistory[i] = y1;
   }
-  tft.endWrite();
+
+  // --- 6. REINFORCE BASELINE ---
+  // We do this last to ensure the graph lines don't "eat" the axis
+  tft.drawFastHLine(0, graphBottom, 320, TFT_BLACK); 
+
+  tft.endWrite(); 
 }
+
+// // 1.0 - fill rectangle redraw
+// void updateLCDGraph(int val) {
+//   const int pointsToKeep = 100; // Number of horizontal data points
+//   const int pixelWidth = 3;     // Width scale factor
+//   const int graphBottom = 135;  // Baseline Y coordinate
+//   const int graphHeight = 130;  // Maximum pixel height of data
+
+//   // 1. Shift data history left by one
+//   for (int i = 0; i < pointsToKeep - 1; i++) {
+//     rpmHistory[i] = rpmHistory[i + 1];
+//   }
+  
+//   // 2. Map current RPM to pixel height (0-2000 range)
+//   int yNew = graphBottom - (int)(val * graphHeight / 2000.0);
+//   rpmHistory[pointsToKeep - 1] = constrain(yNew, 5, graphBottom);
+  
+//   // 3. Map Target RPM to pixel height (0-2000 range)
+//   int yTarget = graphBottom - (int)(targetRPM * graphHeight / 2000.0);
+//   yTarget = constrain(yTarget, 5, graphBottom);
+
+//   // 4. Drawing Pass
+//   tft.startWrite();
+//   tft.fillRect(0, 0, 300, graphBottom + 1, TFT_WHITE); // Clear previous frame
+
+//   // Draw 0-RPM Baseline (Black - 3 pixels thick)
+//   tft.drawFastHLine(0, graphBottom - 1, 320, TFT_BLACK);
+//   tft.drawFastHLine(0, graphBottom, 320, TFT_BLACK); 
+//   tft.drawFastHLine(0, graphBottom + 1, 320, TFT_BLACK);
+
+//   // Draw Target Setpoint Line (Red - 3 pixels thick)
+//   tft.drawFastHLine(0, yTarget - 1, 300, TFT_BLUE);
+//   tft.drawFastHLine(0, yTarget, 300, TFT_BLUE);
+//   tft.drawFastHLine(0, yTarget + 1, 300, TFT_BLUE);
+
+//   // Draw Actual RPM Trace (Blue - 3 pixels thick)
+//   for (int i = 1; i < pointsToKeep; i++) {
+//     int x0 = (i - 1) * pixelWidth;
+//     int y0 = rpmHistory[i - 1];
+//     int x1 = i * pixelWidth;
+//     int y1 = rpmHistory[i];
+
+//     tft.drawLine(x0, y0 - 1, x1, y1 - 1, TFT_RED);
+//     tft.drawLine(x0, y0, x1, y1, TFT_RED);
+//     tft.drawLine(x0, y0 + 1, x1, y1 + 1, TFT_RED);
+//   }
+//   tft.endWrite();
+// }
 
 
 

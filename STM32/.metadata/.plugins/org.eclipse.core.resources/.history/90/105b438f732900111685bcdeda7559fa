@@ -1,0 +1,195 @@
+/*
+ * motor_control.c
+ *
+ *  Created on: Mar 15, 2026
+ *      Author: young
+ */
+
+#include "motor_control.h"
+#include <stdbool.h>
+
+// Used for "Soft Start" so drill ramps up smoothly rather than jerking to life instantly
+#define RAMP_STEP 10 // Define how many RPM to increase per PID cycle (e.g., 10 RPM per update)
+//static float ramped_target_rpm = 0; // The "moving" target for the PID
+
+extern TIM_HandleTypeDef htim1;
+
+float current_pwm = 0;
+int target_rpm = 0;
+extern float current_rpm; // From rpm_sensor.c
+float previous_rpm = 0.0;
+
+uint32_t last_PID_run = 0; // Track the last time PID ran
+
+// Global variables to store state between function calls
+float integral = 0;
+float previous_error = 0;
+float alpha = 0.0f;
+float filtered_derivative = 0.0f;
+
+float cutoff_freq = 0;
+
+
+float K_P = 0.0, K_I = 0.0, K_D = 0.0, K_FF = 0.01;
+
+
+void Motor_Init(void) {
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+    Set_Motor_Duty(&htim1, TIM_CHANNEL_1, 0);
+}
+
+
+void Set_Motor_Duty(TIM_HandleTypeDef *htim, uint32_t Channel, float percent) {
+    if (percent < 0) percent = 0;
+    if (percent > 100) percent = 100;
+
+    current_pwm = percent;
+
+    uint32_t arr = htim->Instance->ARR;
+    uint32_t pulse = (uint32_t)((percent * (arr + 1)) / 100.0f);
+    __HAL_TIM_SET_COMPARE(htim, Channel, pulse);
+}
+
+
+
+
+// 3.0
+void Motor_Update_PID(void) {
+    // 1. Calculate the current error
+    float error = target_rpm - current_rpm;
+
+    // 2. Feed-Forward Term (Instantly sets a baseline power)
+    float FF_out = K_FF * target_rpm;
+
+    // 3. Proportional term
+    float P_out = K_P * error;
+
+    // 4. Smarter Integral term with dynamic anti-windup
+    // Only accumulate error if the output isn't saturated.
+    // This prevents massive overshoots when recovering from a stall.
+    float tentative_output = FF_out + P_out + (K_I * integral);
+    bool is_saturated = (tentative_output >= MAX_PWM && error > 0) ||
+                        (tentative_output <= MIN_PWM && error < 0);
+
+    if (!is_saturated) {
+        integral += (error * PID_DT);
+    }
+
+    // Keep your absolute limits as a secondary safety net
+    if (integral > MAX_INTEGRAL) integral = MAX_INTEGRAL;
+    if (integral < -MAX_INTEGRAL) integral = -MAX_INTEGRAL;
+
+    float I_out = K_I * integral;
+
+    // 5. Derivative on Measurement with LPF
+	float raw_derivative = -(current_rpm - previous_rpm) / PID_DT;
+
+	// Alpha calculation formula: (2 * pi * fc * dt) / (2 * pi * fc * dt + 1)
+	float omega = 2.0f * 3.14f * cutoff_freq;
+	alpha = (omega * PID_DT) / (omega * PID_DT + 1.0f);
+	// Applying the Low Pass Filter: Output = (Alpha * New) + ((1 - Alpha) * Previous)
+	filtered_derivative = (alpha * raw_derivative) + ((1.0f - alpha) * filtered_derivative);
+
+	float D_out = K_D * filtered_derivative;
+
+    // 6. Calculate total output
+    float output = FF_out + P_out + I_out + D_out;
+
+    // 7. Save states for the next loop
+    previous_rpm = current_rpm;
+
+    // 8. Clamp the output to valid PWM range
+    if (output > MAX_PWM) output = MAX_PWM;
+    if (output < MIN_PWM) output = MIN_PWM;
+
+    Set_Motor_Duty(&htim1, TIM_CHANNEL_1, output);
+}
+
+
+
+////2.0
+//void Motor_Update_PID(void) {
+//    // 1. Calculate the current error
+//    float error = target_rpm - current_rpm;
+//
+//    // 2. Proportional term
+//    float P_out = K_P * error;
+//
+//    // 3. Integral term (accumulating error over time)
+//    integral += (error * dt);
+//
+//    // CRITICAL: Integral Anti-Windup
+//    // Prevents the integral from growing infinitely if the motor gets completely stalled
+//    if (integral > MAX_INTEGRAL) integral = MAX_INTEGRAL;
+//    if (integral < -MAX_INTEGRAL) integral = -MAX_INTEGRAL;
+//
+//    float I_out = K_I * integral;
+//
+//    // 4. Derivative term (rate of change)
+//    float derivative = (error - previous_error) / dt;
+//    float D_out = K_D * derivative;
+//
+//    // 5. Calculate total output
+//    float output = P_out + I_out + D_out;
+//
+//    // 6. Save current error for the next loop's derivative calculation
+//    previous_error = error;
+//
+//    // 7. Clamp the output to your valid PWM range
+//    if (output > MAX_PWM) output = MAX_PWM;
+//    if (output < MIN_PWM) output = MIN_PWM;
+//
+//	Set_Motor_Duty(&htim1, TIM_CHANNEL_1, output);
+//	last_PID_run = HAL_GetTick();
+//}
+
+
+
+//// 1.0
+//void Motor_Update_PID(void) {
+//    // 1. Kill switch / Reset
+//    if (target_rpm <= 0) {
+//        Set_Motor_Duty(&htim1, TIM_CHANNEL_1, 0);
+//        ramped_target_rpm = 0;
+//        error_integral = 0;
+//        last_error = 0;
+//        return;
+//    }
+//
+//    // 2. Feed-Forward Calculation
+//    // Use the 0-2000 RPM -> 0-75% PWM mapping as our baseline baseline
+//    // 75 / 2000 = 0.0375
+//    float base_pwm = target_rpm * 0.0375f;
+//
+//    // 3. Calculate Error
+//    // You can swap target_rpm for ramped_target_rpm if you re-enable soft start
+//    float error = target_rpm - current_rpm;
+//
+//    // 4. PID Math
+//    float p_term = K_P * error;
+//
+//    error_integral += error;
+//
+//    // ANTI-WINDUP FIX:
+//    // Previously, you limited error_integral to 500.
+//    // With K_I at 0.01, your max i_term was (500 * 0.01) = 5% PWM.
+//    // This limits the integral's ability to correct heavy loads.
+//    // It is usually better to limit the actual i_term output, rather than the raw error sum.
+//    float i_term = K_I * error_integral;
+//
+//    // Clamp the i_term so it can only add or subtract a maximum of, say, 25% PWM
+//    if (i_term > 25.0f) {
+//        i_term = 25.0f;
+//        error_integral = 25.0f / K_I; // Keep the accumulator in sync
+//    } else if (i_term < -25.0f) {
+//        i_term = -25.0f;
+//        error_integral = -25.0f / K_I;
+//    }
+//
+//    // 5. Sum Base PWM + PID Corrections
+//    // If the drill hits a heavy load, RPM drops, error goes up, P and I add to the base_pwm.
+//    float output_pwm = base_pwm + p_term + i_term;
+//    Set_Motor_Duty(&htim1, TIM_CHANNEL_1, output_pwm);
+//    last_PID_run = HAL_GetTick();
+//}
+

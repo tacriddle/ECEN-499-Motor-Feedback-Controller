@@ -79,96 +79,96 @@ const char index_html[] PROGMEM = R"rawliteral(
 
 
 
-
 <!--
-//start///////////////////////////////////////////////////////////////////////////////////
-//TODO - arcade
--->
-    <div style="margin-top: 40px; text-align: center; border-top: 2px dashed #ccc; padding-top: 20px; padding-bottom: 40px;">
-        <button id="breakButton" onclick="showArcadeMenu()" style="padding: 12px 25px; background: #34495e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; transition: 0.3s;">
-            NEED A BREAK?
-        </button>
-
-        <div id="arcadeMenu" style="display: none; margin-top: 15px;">
-            <button id="gameToggle" onclick="toggleGame()" style="padding: 10px 20px; background: #7f8c8d; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px;">
-                FLAPPY BRICK
+    <!--
+    //start///////////////////////////////////////////////////////////////////////////////////
+    //TODO - arcade
+    -->
+        <div style="margin-top: 40px; text-align: center; border-top: 2px dashed #ccc; padding-top: 20px; padding-bottom: 40px;">
+            <button id="breakButton" onclick="showArcadeMenu()" style="padding: 12px 25px; background: #34495e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; transition: 0.3s;">
+                NEED A BREAK?
             </button>
+
+            <div id="arcadeMenu" style="display: none; margin-top: 15px;">
+                <button id="gameToggle" onclick="toggleGame()" style="padding: 10px 20px; background: #7f8c8d; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px;">
+                    FLAPPY BRICK
+                </button>
+                
+                <button id="pacToggle" onclick="togglePacman()" style="padding: 10px 20px; background: #f1c40f; color: #2c3e50; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px;">
+                    CIRCUIT PAC
+                </button>
+
+                <button onclick="closeArcade()" style="padding: 10px 20px; background: #c0392b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px;">
+                    CLOSE GAMES
+                </button>
+            </div>
+
+            <div id="gameContainer" style="display: none; margin-top: 20px;">
+                <iframe id="gameFrame" src="" style="border:none; border-radius: 12px; width: 100%; height: 700px; max-width: 500px; margin: auto; display: block;"></iframe>
+            </div>
+
+            <div id="pacContainer" style="display: none; margin-top: 20px;">
+                <iframe id="pacFrame" src="" style="border:none; border-radius: 12px; width: 100%; height: 700px; max-width: 500px; margin: auto; display: block;"></iframe>
+            </div>
+        </div>
+
+        <script>
+          // Shows the game selection buttons and hides the main "Break" button
+          function showArcadeMenu() {
+            document.getElementById('arcadeMenu').style.display = "block";
+            document.getElementById('breakButton').style.display = "none";
+          }
+
+          // Resets everything back to the "Need a Break?" state
+          function closeArcade() {
+              // Hide all containers
+              document.getElementById('arcadeMenu').style.display = "none";
+              document.getElementById('gameContainer').style.display = "none";
+              document.getElementById('pacContainer').style.display = "none";
+              
+              // Wipe the iframes to stop game logic and sound
+              document.getElementById('gameFrame').src = "";
+              document.getElementById('pacFrame').src = "";
+              
+              // Bring back the main button
+              document.getElementById('breakButton').style.display = "inline-block";
+          }
+
+          function toggleGame() {
+            var c = document.getElementById('gameContainer');
+            var p = document.getElementById('pacContainer');
+            var f = document.getElementById('gameFrame');
             
-            <button id="pacToggle" onclick="togglePacman()" style="padding: 10px 20px; background: #f1c40f; color: #2c3e50; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px;">
-                CIRCUIT PAC
-            </button>
+            if (c.style.display === "none") {
+              c.style.display = "block"; 
+              p.style.display = "none";
+              // Only set src if it's empty to prevent re-loading a game in progress
+              if (f.src === "" || f.src.includes(window.location.hostname)) f.src = "/game";
+            } else { 
+              c.style.display = "none"; 
+              f.src = ""; // Kill the game audio/logic when hidden
+            }
+          }
 
-            <button onclick="closeArcade()" style="padding: 10px 20px; background: #c0392b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px;">
-                CLOSE GAMES
-            </button>
-        </div>
-
-        <div id="gameContainer" style="display: none; margin-top: 20px;">
-            <iframe id="gameFrame" src="" style="border:none; border-radius: 12px; width: 100%; height: 700px; max-width: 500px; margin: auto; display: block;"></iframe>
-        </div>
-
-        <div id="pacContainer" style="display: none; margin-top: 20px;">
-            <iframe id="pacFrame" src="" style="border:none; border-radius: 12px; width: 100%; height: 700px; max-width: 500px; margin: auto; display: block;"></iframe>
-        </div>
-    </div>
-
-    <script>
-      // Shows the game selection buttons and hides the main "Break" button
-      function showArcadeMenu() {
-        document.getElementById('arcadeMenu').style.display = "block";
-        document.getElementById('breakButton').style.display = "none";
-      }
-
-      // Resets everything back to the "Need a Break?" state
-      function closeArcade() {
-          // Hide all containers
-          document.getElementById('arcadeMenu').style.display = "none";
-          document.getElementById('gameContainer').style.display = "none";
-          document.getElementById('pacContainer').style.display = "none";
-          
-          // Wipe the iframes to stop game logic and sound
-          document.getElementById('gameFrame').src = "";
-          document.getElementById('pacFrame').src = "";
-          
-          // Bring back the main button
-          document.getElementById('breakButton').style.display = "inline-block";
-      }
-
-      function toggleGame() {
-        var c = document.getElementById('gameContainer');
-        var p = document.getElementById('pacContainer');
-        var f = document.getElementById('gameFrame');
-        
-        if (c.style.display === "none") {
-          c.style.display = "block"; 
-          p.style.display = "none";
-          // Only set src if it's empty to prevent re-loading a game in progress
-          if (f.src === "" || f.src.includes(window.location.hostname)) f.src = "/game";
-        } else { 
-          c.style.display = "none"; 
-          f.src = ""; // Kill the game audio/logic when hidden
-        }
-      }
-
-      function togglePacman() {
-        var c = document.getElementById('gameContainer');
-        var p = document.getElementById('pacContainer');
-        var f = document.getElementById('pacFrame');
-        
-        if (p.style.display === "none") {
-          p.style.display = "block"; 
-          c.style.display = "none";
-          if (f.src === "" || f.src.includes(window.location.hostname)) f.src = "/pacman";
-        } else { 
-          p.style.display = "none"; 
-          f.src = ""; 
-        }
-      }
-    </script>
-<!--
-//end/////////////////////////////////////////////////////////////////////////////////////
+          function togglePacman() {
+            var c = document.getElementById('gameContainer');
+            var p = document.getElementById('pacContainer');
+            var f = document.getElementById('pacFrame');
+            
+            if (p.style.display === "none") {
+              p.style.display = "block"; 
+              c.style.display = "none";
+              if (f.src === "" || f.src.includes(window.location.hostname)) f.src = "/pacman";
+            } else { 
+              p.style.display = "none"; 
+              f.src = ""; 
+            }
+          }
+        </script>
+    <!--
+    //end/////////////////////////////////////////////////////////////////////////////////////
+    -->
 -->
-
 
 
 

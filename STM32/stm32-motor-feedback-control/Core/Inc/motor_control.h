@@ -23,14 +23,12 @@
 
 
 #define PID_DT 0.01f  // 10ms expressed in seconds
+#define MAX_RPM 2000.0f
+#define MAX_PWM 0.715f
 
-#define MAX_PWM 100.0
-#define MIN_PWM 0.0
-#define MAX_INTEGRAL 500.0 // Anti-windup limit
-
-
-extern float current_pwm;
-extern int target_rpm;
+//#define MAX_PWM 100.0
+//#define MIN_PWM 0.0
+//#define MAX_INTEGRAL 500.0 // Anti-windup limit
 
 void Motor_Init(void);
 void Set_Motor_Duty(TIM_HandleTypeDef *htim, uint32_t Channel, float percent);
