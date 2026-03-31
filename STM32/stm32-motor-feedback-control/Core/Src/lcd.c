@@ -17,13 +17,17 @@ static uint16_t lcd_dma_idx = 0;
 
 // A flag to tell our main loop that the screen died and came back
 volatile uint8_t lcd_needs_recovery = 0;
-static uint32_t last_hard_refresh = 0;
+
+// --- Non-Blocking State Variables ---
+typedef enum {
+    LCD_STATE_READY,
+    LCD_STATE_CLEARING
+} LCD_State_t;
+
+static LCD_State_t current_lcd_state = LCD_STATE_READY;
+static uint32_t clear_start_time = 0;
 
 
-// ------------------------------------------------------------------
-// BLOCKING FUNCTIONS (Used ONLY for initialization)
-// Fix 1 & 2 implemented here: Batched writes, no HAL_Delay needed!
-// ------------------------------------------------------------------
 static void lcd_pulse_blocking(uint8_t data) {
     uint8_t buffer[2];
     buffer[0] = data | 0x04;  // En=1
@@ -50,9 +54,6 @@ void LCD_Data(uint8_t data) {
     lcd_write4_blocking((data << 4) & 0xF0, 1);
 }
 
-// ------------------------------------------------------------------
-// DMA NON-BLOCKING FUNCTIONS (Used for your main loop)
-// ------------------------------------------------------------------
 
 // Helper: Packs a command or character into the DMA array
 static void add_to_dma_buffer(uint8_t val, uint8_t rs) {
@@ -70,61 +71,144 @@ static void add_to_dma_buffer(uint8_t val, uint8_t rs) {
     lcd_dma_buf[lcd_dma_idx++] = low_nibble & ~0x04;
 }
 
+
+// ------------------------------------------------------------------
+// ERROR RECOVERY
+// ------------------------------------------------------------------
+void LCD_Soft_Reset(void) {
+    // No HAL_Delay() needed here! Just rapidly re-assert the display state.
+    // If EMI scrambled the LCD's brain, this snaps it back to normal.
+    LCD_Cmd(0x28); // 4-bit mode, 2 lines, 5x8 font
+    LCD_Cmd(0x0C); // Display ON, Cursor OFF
+    LCD_Cmd(0x06); // Entry mode: Increment cursor
+
+    // Notice we do NOT call LCD_Clear() here to prevent flickering.
+    // Your DMA routine already uses absolute positioning (0x80, 0xC0),
+    // so it will just cleanly overwrite any gibberish on the screen.
+}
+
+
+void I2C_ClearBus(void) {
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+    // 1. Take control of PB8 (SCL) and PB9 (SDA) as standard outputs
+    GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD; // Open Drain
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    // 2. Drive SDA High
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_SET);
+
+    // 3. Pulse the Clock (SCL) 9 times to flush out the stuck LCD chip
+    for (int i = 0; i < 9; i++) {
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET); // SCL Low
+        for(volatile int j=0; j<2000; j++) __NOP();           // Micro-delay
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);   // SCL High
+        for(volatile int j=0; j<2000; j++) __NOP();           // Micro-delay
+    }
+
+    // Once this function finishes, HAL_I2C_Init() will automatically
+    // reassign these pins back to hardware I2C control!
+}
+
+/**
+ * @brief This gets called automatically by the HAL if the I2C bus crashes,
+ * gets disconnected, or experiences a glitch.
+ */
+void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c) {
+    if (hi2c->Instance == I2C1) {
+        // Set our flag so the system knows to re-initialize the LCD
+        lcd_needs_recovery = 1;
+    }
+}
+
+
 void LCD_Update_Display(void) {
-	// --- FAULT RECOVERY & BLIND REFRESH ---
-	// If we have an I2C fault, OR 10 seconds have passed, force a full sync
-	if (lcd_needs_recovery || (HAL_GetTick() - last_hard_refresh > 10000)) {
-		if (HAL_GetTick() - last_LCD_update > 1000) { // Don't spam it
-			LCD_Init();
-			lcd_needs_recovery = 0;
-			last_LCD_update = HAL_GetTick();
-			last_hard_refresh = HAL_GetTick();
-		}
+	// --- FAULT RECOVERY ---
+	if (lcd_needs_recovery) {
+        static uint32_t last_recovery_attempt = 0;
+        if (HAL_GetTick() - last_recovery_attempt < 2000) return;
+
+        last_recovery_attempt = HAL_GetTick();
+
+        HAL_DMA_Abort(hi2c1.hdmatx);
+        HAL_I2C_DeInit(&hi2c1);
+        I2C_ClearBus();
+        HAL_I2C_Init(&hi2c1);
+
+        LCD_Init();
+        lcd_needs_recovery = 0;
+        current_lcd_state = LCD_STATE_READY; // Reset the state machine too!
+        last_LCD_update = HAL_GetTick();
 		return;
 	}
 
-    // --- SILENT FREEZE DETECTION (The Escape Hatch) ---
+    // --- SILENT FREEZE DETECTION ---
     if (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY) {
-        // A DMA transfer should only take ~10ms.
-        // If it's been "Busy" for over 500ms, the HAL is wedged.
         if (HAL_GetTick() - last_LCD_update > 500) {
-        	HAL_DMA_Abort(hi2c1.hdmatx); // Kill the stuck DMA transfer
-            HAL_I2C_DeInit(&hi2c1);      // Nuke the peripheral
-            HAL_I2C_Init(&hi2c1);        // Bring it back to life
-            lcd_needs_recovery = 1;      // Force the screen to re-initialize
+        	HAL_DMA_Abort(hi2c1.hdmatx);
+            HAL_I2C_DeInit(&hi2c1);
+            HAL_I2C_Init(&hi2c1);
+            lcd_needs_recovery = 1;
             last_LCD_update = HAL_GetTick();
         }
-        return; // Skip normal update
+        return;
+    }
+
+    // --- NON-BLOCKING STATE MACHINE ---
+    // If we are currently clearing, check if 2ms have passed.
+    if (current_lcd_state == LCD_STATE_CLEARING) {
+        if (HAL_GetTick() - clear_start_time >= 2) {
+            // The 2ms delay is over! Unlock the LCD.
+            current_lcd_state = LCD_STATE_READY;
+        } else {
+            // It hasn't been 2ms yet. Exit the function immediately
+            // so the CPU can go do other things!
+            return;
+        }
     }
 
     // --- NORMAL OPERATION ---
-    char display_buf[21];
-    lcd_dma_idx = 0;
+    // Only proceed if the LCD is completely ready
+    if (current_lcd_state == LCD_STATE_READY) {
+        char display_buf[21];
+        lcd_dma_idx = 0;
 
-	// --- Line 1: Actual RPM (Row 0 offset: 0x00) -> 0x80 | 0x00 = 0x80 ---
-	add_to_dma_buffer(0x80, 0);
-	snprintf(display_buf, sizeof(display_buf), " Actual RPM: %-5d  ", (int)current_rpm);
-	for (int i = 0; display_buf[i] != '\0'; i++) add_to_dma_buffer(display_buf[i], 1);
+		// --- Line 1: Actual RPM (Row 0 offset: 0x00) -> 0x80 | 0x00 = 0x80 ---
+		add_to_dma_buffer(0x80, 0);
+		snprintf(display_buf, sizeof(display_buf), " Actual RPM: %-5d  ", (int)current_rpm);
+		for (int i = 0; display_buf[i] != '\0'; i++) add_to_dma_buffer(display_buf[i], 1);
 
-	// --- Line 2: Target RPM (Row 1 offset: 0x40) -> 0x80 | 0x40 = 0xC0 ---
-	add_to_dma_buffer(0xC0, 0);
-	snprintf(display_buf, sizeof(display_buf), " Target RPM: %-5d  ", (int)target_rpm);
-	for (int i = 0; display_buf[i] != '\0'; i++) add_to_dma_buffer(display_buf[i], 1);
+		// --- Line 2: Target RPM (Row 1 offset: 0x40) -> 0x80 | 0x40 = 0xC0 ---
+		add_to_dma_buffer(0xC0, 0);
+		snprintf(display_buf, sizeof(display_buf), " Target RPM: %-5d  ", (int)target_rpm);
+		for (int i = 0; display_buf[i] != '\0'; i++) add_to_dma_buffer(display_buf[i], 1);
 
-	// --- Line 3: RPM Error (Row 2 offset: 0x14) -> 0x80 | 0x14 = 0x94 ---
-	add_to_dma_buffer(0x94, 0);
-	snprintf(display_buf, sizeof(display_buf), "  RPM Error: %-5d  ", (int)rpm_error);
-	for (int i = 0; display_buf[i] != '\0'; i++) add_to_dma_buffer(display_buf[i], 1);
+		// --- Line 3: RPM Error (Row 2 offset: 0x14) -> 0x80 | 0x14 = 0x94 ---
+		add_to_dma_buffer(0x94, 0);
+		snprintf(display_buf, sizeof(display_buf), "  RPM Error: %-5d  ", (int)rpm_error);
+		for (int i = 0; display_buf[i] != '\0'; i++) add_to_dma_buffer(display_buf[i], 1);
 
-	// --- Line 4: Applied PWM (Row 3 offset: 0x54) -> 0x80 | 0x54 = 0xD4 ---
-	add_to_dma_buffer(0xD4, 0);
-	snprintf(display_buf, sizeof(display_buf), "Applied PWM: %-3d%%   ", (int)current_pwm);
-	for (int i = 0; display_buf[i] != '\0'; i++) add_to_dma_buffer(display_buf[i], 1);
+		// --- Line 4: Applied PWM (Row 3 offset: 0x54) -> 0x80 | 0x54 = 0xD4 ---
+		add_to_dma_buffer(0xD4, 0);
+		snprintf(display_buf, sizeof(display_buf), "Applied PWM: %-3d%%   ", (int)current_pwm);
+		for (int i = 0; display_buf[i] != '\0'; i++) add_to_dma_buffer(display_buf[i], 1);
 
-    // Fire off the DMA transmission!
-    HAL_I2C_Master_Transmit_DMA(&hi2c1, LCD_ADDR, lcd_dma_buf, lcd_dma_idx);
+        // Send the rapid Soft Reset (This is still so fast we don't need to track its state)
+        LCD_Soft_Reset();
 
-    last_LCD_update = HAL_GetTick();
+        // Fire off the DMA transmission!
+        if (HAL_I2C_Master_Transmit_DMA(&hi2c1, LCD_ADDR, lcd_dma_buf, lcd_dma_idx) != HAL_OK) {
+            HAL_DMA_Abort(hi2c1.hdmatx);
+            HAL_I2C_DeInit(&hi2c1);
+            HAL_I2C_Init(&hi2c1);
+            lcd_needs_recovery = 1;
+        }
+
+        last_LCD_update = HAL_GetTick();
+    }
 }
 
 // ------------------------------------------------------------------
@@ -146,25 +230,5 @@ void LCD_Init(void) {
 void LCD_Clear(void) {
     LCD_Cmd(0x01);
     HAL_Delay(2);
-}
-
-// ------------------------------------------------------------------
-// ERROR RECOVERY
-// ------------------------------------------------------------------
-/**
- * @brief This gets called automatically by the HAL if the I2C bus crashes,
- * gets disconnected, or experiences a glitch.
- */
-void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c) {
-    if (hi2c->Instance == I2C1) {
-        // 1. Reset the I2C peripheral to clear the hardware error flags
-        HAL_I2C_DeInit(hi2c);
-
-        // 2. Restart the I2C peripheral so it is ready to talk again
-        HAL_I2C_Init(hi2c);
-
-        // 3. Set our flag so the system knows to re-initialize the LCD
-        lcd_needs_recovery = 1;
-    }
 }
 

@@ -73,6 +73,9 @@ void RPM_Process_Data(void) {
 		return; // Hardware timer hasn't ticked. Ignore this DMA batch.
 	}
 
+	// Update timeout timestamp
+	last_tick = HAL_GetTick();
+
 	// Calculate raw RPM from timer ticks
 	float rpm_raw = conversion_factor / (float)period_ticks;
 
@@ -89,9 +92,6 @@ void RPM_Process_Data(void) {
 
 	// Step 3: Complementary Alpha Filter - Smooths out quantization jitter
 	current_rpm = (rpm_alpha * rpm_filtered) + ((1.0f - rpm_alpha) * current_rpm);
-
-	// Update timeout timestamp
-	last_tick = HAL_GetTick();
 }
 
 

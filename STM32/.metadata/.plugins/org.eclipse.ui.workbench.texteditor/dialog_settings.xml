@@ -3,6 +3,19 @@
 	<item key="hasShownOverlayPopupBefore" value="true"/>
 	<item key="replaceBarOpen" value="false"/>
 	<list key="searchhistory">
+		<item value="LCD_Clear_NonBlocking"/>
+		<item value="previous_error"/>
+		<item value="previous_rpm"/>
+		<item value="last_LCD_update"/>
+		<item value="rpm_error"/>
+		<item value="needed_pwm"/>
+		<item value="current_rpm"/>
+		<item value="error"/>
+		<item value="current_pwm"/>
+		<item value="target"/>
+		<item value="median_buffer"/>
+		<item value="TIM2"/>
+		<item value="huart1"/>
 		<item value="last_PID_run"/>
 	</list>
 </section>

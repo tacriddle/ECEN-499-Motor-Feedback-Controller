@@ -45,23 +45,35 @@ const char index_html[] PROGMEM = R"rawliteral(
       <div class="graph-section rpm-accent">
         <div class="stat-header">
           <div class="stat-group">
-            <span class="stat-label">Actual Speed</span>
+            <span class="stat-label">Actual RPM</span>
             <span class="stat-value" id="val-rpm">0<span class="unit">RPM</span></span>
           </div>
+          <div class="stat-group" style="text-align: center;">
+            <span class="stat-label">RPM Error</span>
+            <span class="stat-value" id="val-error" style="color: #e67e22;">0<span class="unit">RPM</span></span>
+          </div>
           <div class="stat-group" style="text-align: right;">
-            <span class="stat-label">Target</span>
+            <span class="stat-label">Target RPM</span>
             <span class="target-value" id="target-display">0<span class="unit">RPM</span></span>
           </div>
         </div>
         <div class="chart-container">
           <canvas id="rpmChart"></canvas>
         </div>
+
+        <!--
+        <div class="stat-label" style="text-align: center; margin-top: 15px; color: #e67e22;">Live RPM Error (Zero-Centered)</div>
+        -->
+        
+        <div class="chart-container" style="height: 250px;">
+          <canvas id="errorChart"></canvas>
+        </div>
       </div>
 
       <div class="graph-section pwm-accent">
         <div class="stat-header">
           <div class="stat-group">
-            <span class="stat-label">Motor Load</span>
+            <span class="stat-label">Applied PWM</span>
             <span class="stat-value" id="val-pwm">0<span class="unit">%</span></span>
           </div>
         </div>
@@ -80,10 +92,8 @@ const char index_html[] PROGMEM = R"rawliteral(
 
 
 <!--
-    <!--
     //start///////////////////////////////////////////////////////////////////////////////////
     //TODO - arcade
-    -->
         <div style="margin-top: 40px; text-align: center; border-top: 2px dashed #ccc; padding-top: 20px; padding-bottom: 40px;">
             <button id="breakButton" onclick="showArcadeMenu()" style="padding: 12px 25px; background: #34495e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; transition: 0.3s;">
                 NEED A BREAK?
@@ -165,9 +175,7 @@ const char index_html[] PROGMEM = R"rawliteral(
             }
           }
         </script>
-    <!--
     //end/////////////////////////////////////////////////////////////////////////////////////
-    -->
 -->
 
 
@@ -232,14 +240,41 @@ const char index_html[] PROGMEM = R"rawliteral(
     var rpmChart = new Chart(document.getElementById('rpmChart').getContext('2d'), createChartConfig(rpmDatasets, 2000));
     var pwmChart = new Chart(document.getElementById('pwmChart').getContext('2d'), createChartConfig(pwmDatasets, 100));
     
+
+    // --- NEW ERROR CHART SETUP ---
+    const errorDatasets = [
+      { label: 'Error', data: [], borderColor: '#e67e22', borderWidth: 2, fill: true, backgroundColor: 'rgba(230, 126, 34, 0.1)' },
+      { label: 'Zero Line', data: [], borderColor: '#bdc3c7', borderWidth: 2, borderDash: [5, 5] } // Dashed center line
+    ];
+
+    var errorChart = new Chart(document.getElementById('errorChart').getContext('2d'), {
+        type: 'line',
+        data: { labels: Array(100).fill(''), datasets: errorDatasets },
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: false,
+          elements: { line: { tension: 0.2 }, point: { radius: 0 } }, 
+          scales: {
+            y: { min: -500, max: 500, grid: { color: '#f0f0f0' }, ticks: { font: { weight: 'bold' } } },
+            x: { grid: { display: false } }
+          },
+          plugins: { legend: { display: false } }
+        }
+    });
+    // -----------------------------
+
+
     var source = new EventSource('/events');
     source.onmessage = function(e) {
       var parts = e.data.split(',');
       var rpm = parseFloat(parts[0]);
       var pwm = parseFloat(parts[1]);
+
+      var rpmError = currentTarget - rpm;
       
       document.getElementById('val-rpm').innerHTML = rpm + '<span class="unit">RPM</span>';
       document.getElementById('val-pwm').innerHTML = pwm + '<span class="unit">%</span>';
+
+      document.getElementById('val-error').innerHTML = rpmError + '<span class="unit">RPM</span>';
 
       // Update RPM Chart
       rpmChart.data.datasets[0].data.push(rpm);
@@ -248,15 +283,24 @@ const char index_html[] PROGMEM = R"rawliteral(
       // Update PWM Chart
       pwmChart.data.datasets[0].data.push(pwm);
 
+      // --- NEW: Update Error Chart ---
+      errorChart.data.datasets[0].data.push(rpmError);
+      errorChart.data.datasets[1].data.push(0); // Keeps the dashed zero line rendering
+
       // Manage Buffer
       if (rpmChart.data.datasets[0].data.length > 100) {
         rpmChart.data.datasets[0].data.shift();
         rpmChart.data.datasets[1].data.shift();
         pwmChart.data.datasets[0].data.shift();
+
+        // Shift error chart too
+        errorChart.data.datasets[0].data.shift();
+        errorChart.data.datasets[1].data.shift();
       }
 
       rpmChart.update('none');
       pwmChart.update('none');
+      errorChart.update('none'); // Render the new chart
     };
   </script>
 </body>

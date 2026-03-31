@@ -1,3 +1,3 @@
-../Core/Src/telemetry.c:36:6:Telemetry_Init	80	static
-../Core/Src/telemetry.c:52:6:Telemetry_Transmit_ESP32	8	static
-../Core/Src/telemetry.c:74:6:HAL_UART_RxCpltCallback	104	static
+../Core/Src/telemetry.c:27:6:Telemetry_Init	8	static
+../Core/Src/telemetry.c:40:6:Telemetry_Transmit_ESP32	8	static
+../Core/Src/telemetry.c:62:6:HAL_UART_RxCpltCallback	16	static

@@ -4278,3 +4278,339 @@ arm-none-eabi-size  stm32-motor-feedback-control.elf
   60308	    496	   3392	  64196	   fac4	stm32-motor-feedback-control.elf
 Finished building: default.size.stdout
  
+11:33:55 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/motor_control.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/motor_control.d" -MT"Core/Src/motor_control.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/motor_control.o"
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60428	    496	   3392	  64316	   fb3c	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+11:48:48 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/motor_control.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/motor_control.d" -MT"Core/Src/motor_control.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/motor_control.o"
+arm-none-eabi-gcc "../Core/Src/rpm_sensor.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/rpm_sensor.d" -MT"Core/Src/rpm_sensor.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/rpm_sensor.o"
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60428	    496	   3392	  64316	   fb3c	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+12:03:48 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/motor_control.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/motor_control.d" -MT"Core/Src/motor_control.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/motor_control.o"
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60620	    496	   3392	  64508	   fbfc	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+12:19:06 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/motor_control.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/motor_control.d" -MT"Core/Src/motor_control.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/motor_control.o"
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60308	    496	   3392	  64196	   fac4	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+12:30:55 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_hal_msp.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_hal_msp.d" -MT"Core/Src/stm32f4xx_hal_msp.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_hal_msp.o"
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60308	    496	   3392	  64196	   fac4	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+12:38:45 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/lcd.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/lcd.d" -MT"Core/Src/lcd.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/lcd.o"
+../Core/Src/lcd.c:20:17: warning: 'last_hard_refresh' defined but not used [-Wunused-variable]
+   20 | static uint32_t last_hard_refresh = 0;
+      |                 ^~~~~~~~~~~~~~~~~
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60252	    496	   3392	  64140	   fa8c	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+12:43:28 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/lcd.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/lcd.d" -MT"Core/Src/lcd.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/lcd.o"
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60300	    496	   3392	  64188	   fabc	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+13:30:04 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/lcd.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/lcd.d" -MT"Core/Src/lcd.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/lcd.o"
+../Core/Src/lcd.c: In function 'LCD_Update_Display':
+../Core/Src/lcd.c:121:9: warning: implicit declaration of function 'LCD_Soft_Reset' [-Wimplicit-function-declaration]
+  121 |         LCD_Soft_Reset();
+      |         ^~~~~~~~~~~~~~
+../Core/Src/lcd.c: At top level:
+../Core/Src/lcd.c:160:6: warning: conflicting types for 'LCD_Soft_Reset'; have 'void(void)'
+  160 | void LCD_Soft_Reset(void) {
+      |      ^~~~~~~~~~~~~~
+../Core/Src/lcd.c:121:9: note: previous implicit declaration of 'LCD_Soft_Reset' with type 'void(void)'
+  121 |         LCD_Soft_Reset();
+      |         ^~~~~~~~~~~~~~
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60332	    496	   3392	  64220	   fadc	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+13:40:43 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60332	    496	   3392	  64220	   fadc	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+13:42:21 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60332	    496	   3392	  64220	   fadc	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+13:46:52 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/lcd.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/lcd.d" -MT"Core/Src/lcd.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/lcd.o"
+../Core/Src/lcd.c: In function 'LCD_Update_Display':
+../Core/Src/lcd.c:126:9: warning: implicit declaration of function 'LCD_Soft_Reset' [-Wimplicit-function-declaration]
+  126 |         LCD_Soft_Reset();
+      |         ^~~~~~~~~~~~~~
+../Core/Src/lcd.c: At top level:
+../Core/Src/lcd.c:165:6: warning: conflicting types for 'LCD_Soft_Reset'; have 'void(void)'
+  165 | void LCD_Soft_Reset(void) {
+      |      ^~~~~~~~~~~~~~
+../Core/Src/lcd.c:126:9: note: previous implicit declaration of 'LCD_Soft_Reset' with type 'void(void)'
+  126 |         LCD_Soft_Reset();
+      |         ^~~~~~~~~~~~~~
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60332	    496	   3392	  64220	   fadc	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+13:51:25 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_hal_msp.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_hal_msp.d" -MT"Core/Src/stm32f4xx_hal_msp.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_hal_msp.o"
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60332	    496	   3392	  64220	   fadc	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+13:54:01 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60332	    496	   3392	  64220	   fadc	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+13:56:20 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_hal_msp.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_hal_msp.d" -MT"Core/Src/stm32f4xx_hal_msp.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_hal_msp.o"
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60332	    496	   3392	  64220	   fadc	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+13:57:40 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_hal_msp.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_hal_msp.d" -MT"Core/Src/stm32f4xx_hal_msp.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_hal_msp.o"
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60332	    496	   3392	  64220	   fadc	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+14:03:41 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/lcd.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/lcd.d" -MT"Core/Src/lcd.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/lcd.o"
+../Core/Src/lcd.c: In function 'LCD_Update_Display':
+../Core/Src/lcd.c:227:9: warning: implicit declaration of function 'LCD_Soft_Reset' [-Wimplicit-function-declaration]
+  227 |         LCD_Soft_Reset();
+      |         ^~~~~~~~~~~~~~
+../Core/Src/lcd.c: At top level:
+../Core/Src/lcd.c:272:6: warning: conflicting types for 'LCD_Soft_Reset'; have 'void(void)'
+  272 | void LCD_Soft_Reset(void) {
+      |      ^~~~~~~~~~~~~~
+../Core/Src/lcd.c:227:9: note: previous implicit declaration of 'LCD_Soft_Reset' with type 'void(void)'
+  227 |         LCD_Soft_Reset();
+      |         ^~~~~~~~~~~~~~
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60428	    496	   3400	  64324	   fb44	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+14:16:42 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/lcd.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/lcd.d" -MT"Core/Src/lcd.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/lcd.o"
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60596	    496	   3400	  64492	   fbec	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+14:25:39 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60644	    496	   3400	  64540	   fc1c	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+14:30:48 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60644	    496	   3400	  64540	   fc1c	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+15:21:41 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/motor_control.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/motor_control.d" -MT"Core/Src/motor_control.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/motor_control.o"
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  60644	    496	   3400	  64540	   fc1c	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 
+17:48:44 **** Incremental Build of configuration Debug for project stm32-motor-feedback-control ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/lcd.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/lcd.d" -MT"Core/Src/lcd.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/lcd.o"
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc "../Core/Src/motor_control.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/motor_control.d" -MT"Core/Src/motor_control.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/motor_control.o"
+arm-none-eabi-gcc "../Core/Src/telemetry.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F446xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/telemetry.d" -MT"Core/Src/telemetry.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/telemetry.o"
+arm-none-eabi-gcc -o "stm32-motor-feedback-control.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\young\OneDrive\Documents\- Hardware Labs\ECEN-499-Motor-Feedback-Controller\STM32\stm32-motor-feedback-control\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32-motor-feedback-control.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: stm32-motor-feedback-control.elf
+ 
+arm-none-eabi-size  stm32-motor-feedback-control.elf 
+arm-none-eabi-objdump -h -S stm32-motor-feedback-control.elf  > "stm32-motor-feedback-control.list"
+   text	   data	    bss	    dec	    hex	filename
+  52956	    484	   3364	  56804	   dde4	stm32-motor-feedback-control.elf
+Finished building: default.size.stdout
+ 
+Finished building: stm32-motor-feedback-control.list
+ 

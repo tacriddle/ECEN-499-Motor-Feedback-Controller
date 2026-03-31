@@ -25,13 +25,6 @@
 #include "motor_control.h"
 #include "telemetry.h"
 #include "lcd.h"
-
-//begin///////////////////////////////////////////////////////////////////////////////////////////
-//TODO: Debug only — remove before production
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-//end///////////////////////////////////////////////////////////////////////////////////////////
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -68,14 +61,8 @@ DMA_HandleTypeDef hdma_usart2_tx;
 volatile uint8_t lcd_transmit_flag = 0;
 volatile uint8_t esp32_transmit_flag = 0;
 
-extern float current_rpm;	// From rpm_sensor.c
-
-//begin///////////////////////////////////////////////////////////////////////////////////////////
-//TODO: Debug only — remove before production
-extern float needed_pwm;
-extern float output_pwm;
-extern float rpm_error;
-//end///////////////////////////////////////////////////////////////////////////////////////////
+static uint32_t lcd_last_blind_wipe = 0;
+extern volatile uint8_t lcd_needs_recovery;
 
 /* USER CODE END PV */
 
@@ -95,13 +82,6 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-//begin///////////////////////////////////////////////////////////////////////////////////////////
-//TODO: Debug only — remove before production
-int __io_putchar(int ch) {
-    HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
-    return ch;
-}
-//end///////////////////////////////////////////////////////////////////////////////////////////
 
 /* USER CODE END 0 */
 
@@ -173,17 +153,20 @@ int main(void)
 	  if (esp32_transmit_flag >= 4) {
 	      esp32_transmit_flag -= 4;
 	      Telemetry_Transmit_ESP32();
-	      //begin///////////////////////////////////////////////////////////////////////////////////////////
-	      //TODO: Debug only — remove before production
-//	      printf("NEEDED_PWM: %d | OUTPUT_PWM: %d | CURRENT_RPM: %d | ERROR: %d\n\r", (int)needed_pwm, (int)output_pwm, (int)current_rpm, (int)rpm_error);
-	      //end///////////////////////////////////////////////////////////////////////////////////////////
-
 	  }
 
 
 
 	  if (lcd_transmit_flag >= 20) {
 	      lcd_transmit_flag -= 20;
+
+	      // THE BLIND RECOVERY:
+	      // Force a full screen initialization every 15 seconds just in case it suffered a Nibble Desync
+	      if (HAL_GetTick() - lcd_last_blind_wipe > 7000) {
+	          lcd_needs_recovery = 1;
+	          lcd_last_blind_wipe = HAL_GetTick();
+	      }
+
 	      LCD_Update_Display();
 	  }
 
@@ -262,7 +245,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.ClockSpeed = 100000;
+  hi2c1.Init.ClockSpeed = 50000;
   hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
@@ -527,16 +510,16 @@ static void MX_DMA_Init(void)
 
   /* DMA interrupt init */
   /* DMA1_Stream5_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 2);
   HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
   /* DMA1_Stream6_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 0, 2);
   HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
   /* DMA1_Stream7_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream7_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(DMA1_Stream7_IRQn, 0, 2);
   HAL_NVIC_EnableIRQ(DMA1_Stream7_IRQn);
   /* DMA2_Stream7_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA2_Stream7_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(DMA2_Stream7_IRQn, 0, 2);
   HAL_NVIC_EnableIRQ(DMA2_Stream7_IRQn);
 
 }
@@ -588,7 +571,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     {
 		// Calculate and apply new PWM
 		Motor_Update_PID();
-		// flag to transmit current RPM and PWM to ESP32 and LCD
+		// flags to transmit current RPM and PWM to ESP32 and LCD
 		esp32_transmit_flag += 1;
 		lcd_transmit_flag += 1;
     }

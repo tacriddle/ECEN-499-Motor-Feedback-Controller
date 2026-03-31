@@ -10,22 +10,7 @@
 
 #include "main.h"
 
-// PID Tuning Constants
-//#define K_P  0.15f   // Proportional gain
-//#define K_I  0.01f   // Integral gain
-//#define K_D  0.001f  // Derivative gain
-//#define K_FF 0.01f   // Feed Forward
-
-//begin///////////////////////////////////////////////////////////////////////////////////////////
-//TODO: Debug only — remove before production
-// Expose tuning variables for telemetry.c
-extern float K_P;
-extern float K_I;
-extern float K_D;
-extern float K_FF;
-extern float D_alpha;
-//end///////////////////////////////////////////////////////////////////////////////////////////
-
+#define K_P  0.15f   // Proportional gain PID tuning constant
 
 #define PID_DT 0.01f  // 10ms expressed in seconds
 #define MAX_RPM 2000.0f

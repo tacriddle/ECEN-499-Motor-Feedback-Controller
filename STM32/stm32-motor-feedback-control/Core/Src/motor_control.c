@@ -14,15 +14,9 @@ float current_pwm = 0;
 float target_rpm = 0;
 
 // Global variables to store state between function calls
-float D_alpha = 0.2f; // Derivative filter factor (0.0 to 1.0). Lower = smoother.
-float integral_sum = 0.0f;
-float previous_error = 0.0f;
-float filtered_derivative = 0.0f; // Stores the smoothed derivative
 float needed_pwm = 0;
 float output_pwm = 0;
 float rpm_error = 0;
-
-float K_P = 0.05, K_I = 0.0, K_D = 0.0, K_FF = 0.0;
 
 
 void Motor_Init(void) {
@@ -46,10 +40,7 @@ void Set_Motor_Duty(TIM_HandleTypeDef *htim, uint32_t Channel, float percent) {
 void Motor_Update_PID(void) {
     if (target_rpm <= 0.0f) {
         Set_Motor_Duty(&htim1, TIM_CHANNEL_1, 0.0f);
-        integral_sum = 0.0f;
-        previous_error = 0.0f;
         rpm_error = 0.0f;
-        filtered_derivative = 0.0f; // Reset filter state on stop
         return;
     }
 
@@ -59,25 +50,7 @@ void Motor_Update_PID(void) {
     // 2. Proportional Term
     float P_out = K_P * rpm_error;
 
-//    // 3. Integral Term with Anti-Windup
-//    integral_sum += rpm_error * PID_DT;
-//    float I_out = K_I * integral_sum;
-//
-//    if (I_out > 100.0f) {
-//        I_out = 100.0f;
-//        if (K_I != 0) integral_sum = 100.0f / K_I;
-//    } else if (I_out < 0.0f) {
-//        I_out = 0.0f;
-//        integral_sum = 0.0f;
-//    }
-//
-//    // 4. Filtered Derivative Term
-//    float raw_derivative = (rpm_error - previous_error) / PID_DT;
-//    filtered_derivative = (D_alpha * raw_derivative) + ((1.0f - D_alpha) * filtered_derivative);
-//    float D_out = K_D * filtered_derivative;
-
     // 5. Calculate total PID output
-//    float error_pwm = P_out + I_out + D_out;
     needed_pwm = ((target_rpm / MAX_RPM) * MAX_PWM) * 100.0f;
     output_pwm = needed_pwm + P_out;
 
@@ -85,9 +58,6 @@ void Motor_Update_PID(void) {
     if (output_pwm > 100.0f) output_pwm = 100.0f;
     if (output_pwm < 0.0f) output_pwm = 0.0f;
 
-    // 7. Save the current error for the next loop
-    previous_error = rpm_error;
-
-    // 8. Apply the new duty cycle
+    // 7. Apply the new duty cycle
     Set_Motor_Duty(&htim1, TIM_CHANNEL_1, output_pwm);
 }
