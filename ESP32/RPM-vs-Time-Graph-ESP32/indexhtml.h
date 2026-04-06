@@ -91,9 +91,13 @@ const char index_html[] PROGMEM = R"rawliteral(
 
 
 
+    
+<!-- //start///////////////////////////////////////////////////////////////////////////////////
+//TODO - arcade
+/* (have all "TODO" referenced blocks of code in the RPM-vs-Time-Graph-ESP32.ino 
+  *  file and indexhtml.h file uncommented for arcade games) */ -->
+
 <!--
-    //start///////////////////////////////////////////////////////////////////////////////////
-    //TODO - arcade
         <div style="margin-top: 40px; text-align: center; border-top: 2px dashed #ccc; padding-top: 20px; padding-bottom: 40px;">
             <button id="breakButton" onclick="showArcadeMenu()" style="padding: 12px 25px; background: #34495e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1rem; transition: 0.3s;">
                 NEED A BREAK?
@@ -175,8 +179,10 @@ const char index_html[] PROGMEM = R"rawliteral(
             }
           }
         </script>
-    //end/////////////////////////////////////////////////////////////////////////////////////
 -->
+
+<!-- //end///////////////////////////////////////////////////////////////////////////////////// -->
+
 
 
 

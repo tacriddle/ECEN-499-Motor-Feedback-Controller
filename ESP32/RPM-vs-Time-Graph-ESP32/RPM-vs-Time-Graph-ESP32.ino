@@ -1,5 +1,5 @@
 /**
- * Drill Press Monitoring System - ESP32 Production Firmware
+ * Drill Press Monitoring System - ESP32 Firmware
  * --------------------------------------------------------
  * Mode: Access Point (AP)
  * Hardware: ESP32 + 1.9" TFT LCD (TFT_eSPI)
@@ -7,9 +7,58 @@
  */
 #include <Arduino.h>
 
+/* ==========================================================================================
+ * To successfully compile and run this code, the following 3 libraries must be installed. 
+ * ========================================================================================== */
+
+// 1. AsyncTCP by Mathieu Carbou
+// Purpose: Required backend dependency to handle asynchronous TCP connections.
+// Installation:
+//   Method A (Recommended): Sketch -> Include Library -> Manage Libraries. Search for "AsyncTCP" and install the version by Mathieu Carbou.
+//   Method B: Download the ZIP from https://github.com/mathieucarbou/AsyncTCP, then go to Sketch -> Include Library -> Add .ZIP Library.
+#include <AsyncTCP.h>
+
+// 2. ESPAsyncWebServer by Mathieu Carbou
+// Purpose: Hosts the asynchronous web-based telemetry dashboard to monitor drill press feedback.
+// Installation:
+//   Method A (Recommended): Sketch -> Include Library -> Manage Libraries. Search for "ESPAsyncWebServer" and install the version by Mathieu Carbou.
+//   Method B: Download the ZIP from https://github.com/mathieucarbou/ESPAsyncWebServer, then go to Sketch -> Include Library -> Add .ZIP Library.
+#include <ESPAsyncWebServer.h>
+
+// 3. TFT_eSPI by Bodmer
+// Purpose: Highly optimized graphics library driving the local TFT display.
+// Installation:
+//   1. Go to Sketch -> Include Library -> Manage Libraries.
+//   2. Search for "TFT_eSPI" by Bodmer and install it.
+//
+// *** CRITICAL HARDWARE CONFIGURATION ***
+// This library requires manual configuration to match the display hardware. 
+// After installing, you MUST do the following before compiling:
+//   1. Navigate to your Arduino libraries folder (usually Documents/Arduino/libraries/TFT_eSPI).
+//   2. Open `User_Setup.h` in a text editor.
+//   3. Comment out the default display driver and uncomment the specific driver used for this build (#define ILI9341_DRIVER).
+#include <TFT_eSPI.h>
+
+/* ================================================================================================================== */
+
+
+// WiFi.h (Built-in)
+// By: Espressif Systems
+// Purpose: Core library for ESP32 WiFi functionality (Station and Access Point modes).
+// Installation: Included automatically with the ESP32 Board Package.
+#include <WiFi.h>
+
+// Local Project Files
+// chartjs.h: Stores the Chart.js library in memory (Offline Mode).
+// indexhtml.h: Stores the Dashboard UI/Layout.
+#include "chartjs.h"    
+#include "indexhtml.h"  
 
 // //start///////////////////////////////////////////////////////////////////////////////////
-// //TODO - arcade
+// //TODO - arcade 
+// /* (have all "TODO" referenced blocks of code in the RPM-vs-Time-Graph-ESP32.ino 
+//  *  file and indexhtml.h file uncommented for arcade games) */
+
 // #include "flappy.h"
 // #include <Preferences.h>
 // Preferences prefs;
@@ -18,31 +67,6 @@
 // #include "pacman.h"
 // int pacHighScore = 0; 
 // //end/////////////////////////////////////////////////////////////////////////////////////
-
-
-// 1. WiFi.h (Built-in)
-// By: Espressif Systems
-// Purpose: Core library for ESP32 WiFi functionality (Station and Access Point modes).
-// Installation: Included automatically with the ESP32 Board Package.
-#include <WiFi.h>
-
-// 2. AsyncTCP by Mathieu Carbou
-// GitHub: https://github.com/mathieucarbou/AsyncTCP
-#include <AsyncTCP.h>
-
-// 3. ESPAsyncWebServer by Mathieu Carbou
-// GitHub: https://github.com/mathieucarbou/ESPAsyncWebServer
-#include <ESPAsyncWebServer.h>
-
-// 4. TFT_eSPI by Bodmer
-// Install using Arduino IDE Library Manager
-#include <TFT_eSPI.h>
-
-// 5. Local Project Files
-// chartjs.h: Stores the Chart.js library in memory (Offline Mode).
-// indexhtml.h: Stores the Dashboard UI/Layout.
-#include "chartjs.h"    
-#include "indexhtml.h"  
 
 
 // --- Global Objects ---
@@ -133,6 +157,8 @@ void setup() {
 
   // //start///////////////////////////////////////////////////////////////////////////////////
   // //TODO - arcade
+  // /* (have all "TODO" referenced blocks of code in the RPM-vs-Time-Graph-ESP32.ino 
+  // *  file and indexhtml.h file uncommented for arcade games) */
 
   // // flappy brick
   // server.on("/game", HTTP_GET, [](AsyncWebServerRequest *request){

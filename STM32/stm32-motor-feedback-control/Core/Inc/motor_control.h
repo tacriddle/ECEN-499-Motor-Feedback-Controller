@@ -10,7 +10,15 @@
 
 #include "main.h"
 
-#define K_P  0.15f   // Proportional gain PID tuning constant
+/* =======================================================================================================
+ * TODO - PID Tuning: To change the gain values, change the following 3 macro definitions.
+ * ======================================================================================================*/
+#define K_P  0.15f  // Proportional gain PID tuning constant
+
+// If implementing derivative and/or integral feedback, uncomment the following lines as well as in the 3 sections in motor_control.c
+//#define K_D 0.0f	// Derivative gain PID tuning constant
+//#define K_I 0.0f	// Integral gain PID tuning constant
+
 
 #define PID_DT 0.01f  // 10ms expressed in seconds
 #define MAX_RPM 2000.0f

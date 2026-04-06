@@ -17,6 +17,19 @@ float target_rpm = 0;
 float needed_pwm = 0;
 float output_pwm = 0;
 float rpm_error = 0;
+float error_pwm = 0;
+
+/* =======================================================================================================
+ * TODO - PID Tuning: If implementing derivative and/or integral feedback, uncomment the following lines
+ *  					as well as in the 2 sections below and 1 section in motor_control.h
+ * ======================================================================================================*/
+// Derivative:
+//float D_alpha = 0.2f; // Derivative filter factor (0.0 to 1.0). Lower = smoother.
+//float previous_error = 0.0f;
+//float filtered_derivative = 0.0f; // Stores the smoothed derivative
+
+// Integral:
+//float integral_sum = 0.0f;
 
 
 void Motor_Init(void) {
@@ -50,9 +63,48 @@ void Motor_Update_PID(void) {
     // 2. Proportional Term
     float P_out = K_P * rpm_error;
 
+/* =================================================================================================================
+ * TODO - PID Tuning: If implementing derivative and/or integral feedback, uncomment the following lines
+ * 						(#3 for integral, #4 for derivative) as well as in the 1 sections above, 1 section
+ * 						below, and 1 section in motor_control.h
+ * =================================================================================================================*/
+//	// 3. Integral Term with Anti-Windup
+//	integral_sum += rpm_error * PID_DT;
+//	float I_out = K_I * integral_sum;
+//
+//	if (I_out > 100.0f) {
+//		I_out = 100.0f;
+//		if (K_I != 0) integral_sum = 100.0f / K_I;
+//	} else if (I_out < 0.0f) {
+//		I_out = 0.0f;
+//		integral_sum = 0.0f;
+//	}
+//
+//	// 4. Filtered Derivative Term
+//	float raw_derivative = (rpm_error - previous_error) / PID_DT;
+//	filtered_derivative = (D_alpha * raw_derivative) + ((1.0f - D_alpha) * filtered_derivative);
+//	float D_out = K_D * filtered_derivative;
+
+
     // 5. Calculate total PID output
+/* ===================================================================================================================
+ * TODO - PID Tuning: If implementing derivative and/or integral feedback, uncomment/comment out the necessary lines
+ * 						as well as in the 2 sections above and 1 section in motor_control.h
+ * ===================================================================================================================*/
+    // if using only proportional
+    error_pwm = P_out;
+
+    // if using proportional and derivative
+//    error_pwm = P_out + D_out;
+
+    // if using proportional and integral
+//    error_pwm = P_out + I_out;
+
+    // if using proportional, derivative, and integral
+//    error_pwm = P_out + I_out + D_out;
+
     needed_pwm = ((target_rpm / MAX_RPM) * MAX_PWM) * 100.0f;
-    output_pwm = needed_pwm + P_out;
+    output_pwm = needed_pwm + error_pwm;
 
     // 6. Final safety clamp
     if (output_pwm > 100.0f) output_pwm = 100.0f;
